@@ -1,0 +1,9 @@
+{
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/:path*",
+      "destination": "https://elitegamer859650-browhost.hf.space/proxy?path=:path*"
+    }
+  ]
+}
