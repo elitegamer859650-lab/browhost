@@ -3,91 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | BrowHost Engine</title>
+    <title>User Dashboard | BrowHost</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap');
-        body { background-color: #020202; color: #eee; font-family: 'Space Grotesk', sans-serif; overflow-x: hidden; }
-        .neon-text { color: #00d2ff; text-shadow: 0 0 10px rgba(0, 210, 255, 0.4); }
-        .glass-card { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); }
-        .btn-glow { background: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%); transition: 0.3s; }
-        .btn-glow:hover { box-shadow: 0 0 20px rgba(0, 210, 255, 0.5); transform: translateY(-2px); }
-        .ai-glow { box-shadow: 0 0 30px rgba(0, 210, 255, 0.2); animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-        #auth-overlay { background: #000; position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; transition: 0.5s; }
+        body { background-color: #f9fafb; color: #111827; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .card { background: white; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .btn-primary { background-color: #2563eb; color: white; transition: 0.2s; }
+        .btn-primary:hover { background-color: #1d4ed8; }
+        .loader { border-top-color: #2563eb; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="pb-20">
+<body class="bg-gray-50">
 
-    <div id="auth-overlay">
-        <div class="text-center">
-            <div class="w-12 h-12 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p class="text-cyan-400 font-mono text-xs tracking-widest animate-pulse">AUTHORIZING ACCESS...</p>
-        </div>
-    </div>
-
-    <nav class="p-6 border-b border-white/5 flex justify-between items-center sticky top-0 bg-black/80 z-50 backdrop-blur-md">
-        <h1 class="text-2xl font-black italic tracking-tighter cursor-pointer" onclick="location.reload()">
-            BROW<span class="neon-text">HOST</span>
-        </h1>
-        <div id="user-info" class="flex items-center gap-4">
-            <div class="text-right flex flex-col">
-                <span id="username-display" class="text-white font-bold text-sm text-right">Loading...</span>
-                <span id="user-plan-badge" class="text-[9px] bg-gray-800 text-gray-400 px-2 py-0.5 rounded-full self-end uppercase font-black mt-1">Free Tier</span>
+    <nav class="bg-white border-b border-gray-200 py-4 px-8 flex justify-between items-center sticky top-0 z-50">
+        <h1 class="text-xl font-bold text-blue-600">BrowHost</h1>
+        <div class="flex items-center gap-4">
+            <div class="text-right">
+                <p id="username-display" class="font-semibold text-sm text-gray-800">Loading user...</p>
+                <p id="user-plan-badge" class="text-[10px] text-gray-500 font-bold uppercase">Free Plan</p>
             </div>
-            <img id="user-pic" class="w-10 h-10 rounded-2xl border border-cyan-500/50 object-cover">
-            <button onclick="logout()" class="text-red-500 hover:bg-red-500/10 p-2 rounded-lg"><i class="fas fa-power-off"></i></button>
+            <img id="user-pic" class="w-10 h-10 rounded-full border border-gray-200">
+            <button onclick="logout()" class="text-gray-400 hover:text-red-600 transition-colors"><i class="fas fa-sign-out-alt"></i></button>
         </div>
     </nav>
 
-    <main class="max-w-5xl mx-auto p-6 space-y-12 mt-8">
-        <section class="flex justify-between items-center">
-            <div>
-                <h2 class="text-3xl font-black tracking-tight">Active <span class="text-cyan-500">Deployments</span></h2>
-                <p class="text-gray-500 text-[10px] uppercase font-bold tracking-widest">Global Edge Network: <span class="text-green-500">Online</span></p>
-            </div>
-            <span id="project-count" class="text-5xl font-black italic opacity-20">0</span>
-        </section>
-
-        <section id="active-list" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            </section>
-
-        <section id="upload-section" class="glass-card rounded-[2.5rem] p-1 border-white/10">
-            <div class="p-12 border-2 border-dashed border-white/5 rounded-[2.2rem] flex flex-col items-center justify-center space-y-6 hover:border-cyan-500/30 transition-all cursor-pointer group" onclick="document.getElementById('folder-input').click()">
-                <div class="w-20 h-20 bg-cyan-500/10 rounded-3xl flex items-center justify-center border border-cyan-500/20 group-hover:scale-110 transition-all">
-                    <i class="fas fa-folder-plus text-3xl text-cyan-400"></i>
-                </div>
-                <div class="text-center">
-                    <h3 class="text-xl font-black uppercase">Launch Folder</h3>
-                    <p class="text-gray-500 text-xs">Select your project directory to push live.</p>
-                </div>
-                <input type="file" id="folder-input" webkitdirectory directory multiple class="hidden" onchange="handleFileSelect(this)">
-            </div>
-            
-            <div id="deployment-form" class="hidden p-8 border-t border-white/5 space-y-6 bg-black/20">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input type="text" id="project-name" class="bg-black border border-white/10 p-4 rounded-xl outline-none focus:border-cyan-500 text-sm" placeholder="Project Name">
-                    <input type="text" id="entry-file" class="bg-black border border-white/10 p-4 rounded-xl outline-none focus:border-cyan-500 text-sm" value="index.html">
-                </div>
-                <button onclick="handleDeploy()" id="upload-btn" class="btn-glow w-full py-4 rounded-xl font-black text-black uppercase text-xs tracking-widest">Confirm Launch</button>
-                <div id="progress" class="text-center text-[10px] text-cyan-500 hidden font-bold animate-pulse">UPLOADING TO BROWHOST CLOUD...</div>
-            </div>
-        </section>
-    </main>
-
-    <div id="ai-widget" class="fixed bottom-8 right-8 z-[60] hidden">
-        <button onclick="toggleAI()" class="w-14 h-14 bg-cyan-500 rounded-2xl flex items-center justify-center ai-glow"><i class="fas fa-robot text-black text-xl"></i></button>
-        <div id="ai-chat" class="hidden absolute bottom-20 right-0 w-80 h-[400px] glass-card rounded-3xl overflow-hidden border-cyan-500/30 flex flex-col shadow-2xl">
-            <div class="bg-cyan-500 p-3 text-black font-bold text-xs flex justify-between"><span>BROWHOST AI (PRO)</span><i class="fas fa-times cursor-pointer" onclick="toggleAI()"></i></div>
-            <div id="chat-logs" class="flex-grow p-4 overflow-y-auto text-[10px] space-y-3 font-mono"></div>
-            <div class="p-2 border-t border-white/5 flex gap-2">
-                <input type="text" id="ai-input" class="flex-grow bg-black p-2 rounded-lg text-xs outline-none" placeholder="Ask anything...">
-                <button onclick="askAI()" class="text-cyan-500 px-3"><i class="fas fa-paper-plane"></i></button>
+    <main class="max-w-5xl mx-auto p-6 space-y-8">
+        
+        <div class="flex justify-between items-center">
+            <h2 class="text-2xl font-bold text-gray-800">Your Projects</h2>
+            <div class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">
+                Total: <span id="project-count">0</span>
             </div>
         </div>
-    </div>
+
+        <div id="active-list" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            </div>
+
+        <div class="card p-8 text-center space-y-4">
+            <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto">
+                <i class="fas fa-plus text-2xl"></i>
+            </div>
+            <div>
+                <h3 class="text-lg font-bold">Deploy a New Site</h3>
+                <p class="text-gray-500 text-sm">Select a folder from your computer to host it instantly.</p>
+            </div>
+            <input type="file" id="folder-input" webkitdirectory directory multiple class="hidden" onchange="showForm(this)">
+            <button onclick="document.getElementById('folder-input').click()" class="btn-primary px-8 py-3 rounded-lg font-bold text-sm">Select Folder</button>
+        </div>
+
+        <div id="deployment-form" class="card p-8 hidden space-y-6">
+            <h3 class="font-bold border-b pb-2">Deployment Settings</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="text-xs font-bold text-gray-600 uppercase">Project Name</label>
+                    <input type="text" id="project-name" class="w-full border rounded-lg p-3 mt-1 outline-none focus:ring-2 focus:ring-blue-500" placeholder="my-web-site">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-600 uppercase">Entry File</label>
+                    <input type="text" id="entry-file" class="w-full border rounded-lg p-3 mt-1" value="index.html">
+                </div>
+            </div>
+            <button onclick="handleDeploy()" id="upload-btn" class="btn-primary w-full py-4 rounded-lg font-bold">Deploy Now</button>
+            <p id="progress-text" class="text-center text-sm text-blue-600 font-semibold hidden">Uploading files, please wait...</p>
+        </div>
+
+    </main>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -109,119 +92,104 @@
         const API_BASE = "https://elitegamer859650-browhost.hf.space";
         
         let currentUser = null;
-        let userPlan = 'free';
 
-        // --- AUTH PROTECTION SYSTEM ---
+        // --- AUTH CHECK ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
-                // Get Plan from Firestore
-                const userSnap = await getDoc(doc(db, "users", user.uid));
-                if(userSnap.exists()) {
-                    userPlan = userSnap.data().plan || 'free';
-                    updateUI(userSnap.data());
+                // Fetch User Details from Firestore
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists()) {
+                    const data = userDoc.data();
+                    document.getElementById('username-display').innerText = data.name;
+                    document.getElementById('user-pic').src = data.pic;
+                    document.getElementById('user-plan-badge').innerText = (data.plan || 'free') + " Plan";
                 }
-                loadUserProjects();
-                document.getElementById('auth-overlay').style.opacity = '0';
-                setTimeout(() => document.getElementById('auth-overlay').classList.add('hidden'), 500);
+                loadProjects();
             } else {
                 window.location.href = 'index.html';
             }
         });
 
-        function updateUI(data) {
-            document.getElementById('username-display').innerText = data.name;
-            document.getElementById('user-pic').src = data.pic;
-            const badge = document.getElementById('user-plan-badge');
-            badge.innerText = userPlan + " Plan";
-            if(userPlan !== 'free') {
-                badge.className = "text-[9px] bg-cyan-500 text-black px-2 py-0.5 rounded-full self-end uppercase font-black mt-1 shadow-[0_0_10px_rgba(0,210,255,0.3)]";
-                document.getElementById('ai-widget').classList.remove('hidden');
+        // --- DEPLOY LOGIC ---
+        window.showForm = (input) => {
+            if(input.files.length > 0) {
+                document.getElementById('deployment-form').classList.remove('hidden');
+                const folderName = input.files[0].webkitRelativePath.split('/')[0];
+                document.getElementById('project-name').value = folderName.toLowerCase().replace(/\s+/g, '-');
             }
-        }
-
-        // --- PROJECT LOGIC ---
-        window.handleFileSelect = (input) => {
-            if(!input.files.length) return;
-            document.getElementById('deployment-form').classList.remove('hidden');
-            const folderName = input.files[0].webkitRelativePath.split('/')[0];
-            document.getElementById('project-name').value = folderName.toLowerCase().replace(/\s+/g, '-');
         };
 
         window.handleDeploy = async () => {
             const folderInput = document.getElementById('folder-input');
             const projectName = document.getElementById('project-name').value.trim();
             const btn = document.getElementById('upload-btn');
-            const progress = document.getElementById('progress');
+            const progress = document.getElementById('progress-text');
 
-            if (!folderInput.files.length || !projectName) return;
+            if (!folderInput.files.length || !projectName) return alert("Please fill all fields.");
 
             btn.disabled = true;
             progress.classList.remove('hidden');
 
             const zip = new JSZip();
-            for (let f of folderInput.files) {
-                const path = f.webkitRelativePath.split('/').slice(1).join('/');
-                if(path) zip.file(path, f);
+            for (let file of folderInput.files) {
+                const path = file.webkitRelativePath.split('/').slice(1).join('/');
+                if(path) zip.file(path, file);
             }
 
-            const zipBlob = await zip.generateAsync({ type: "blob" });
-            const formData = new FormData();
-            formData.append('file', zipBlob, 'site.zip');
-            formData.append('project_name', projectName);
-
             try {
+                const zipBlob = await zip.generateAsync({ type: "blob" });
+                const formData = new FormData();
+                formData.append('file', zipBlob, 'site.zip');
+                formData.append('project_name', projectName);
+
                 const res = await fetch(`${API_BASE}/deploy-folder`, { method: 'POST', body: formData });
                 const data = await res.json();
+
                 if (data.status === "success") {
+                    // Save project to Firestore
                     await setDoc(doc(db, "projects", data.deploy_id), {
                         name: projectName,
                         subdomain: data.deploy_id,
                         owner_uid: currentUser.uid,
-                        main_file: document.getElementById('entry-file').value,
-                        createdAt: new Date()
+                        main: document.getElementById('entry-file').value,
+                        date: new Date().toISOString()
                     });
+                    alert("Project Deployed Successfully!");
                     location.reload();
+                } else {
+                    alert("Error: " + data.error);
                 }
-            } catch (e) { alert("Deployment failed!"); btn.disabled = false; }
+            } catch (e) {
+                alert("Connection error with hosting engine.");
+            } finally {
+                btn.disabled = false;
+                progress.classList.add('hidden');
+            }
         };
 
-        async function loadUserProjects() {
+        async function loadProjects() {
             const list = document.getElementById('active-list');
             const q = query(collection(db, "projects"), where("owner_uid", "==", currentUser.uid));
             const snap = await getDocs(q);
-            document.getElementById('project-count').innerText = snap.size;
             
-            list.innerHTML = snap.size ? "" : "<p class='col-span-full text-center text-gray-700 py-10 italic'>No deployments found.</p>";
+            document.getElementById('project-count').innerText = snap.size;
+            list.innerHTML = snap.size ? "" : "<p class='text-gray-500 italic text-sm'>No projects deployed yet.</p>";
+
             snap.forEach(doc => {
                 const p = doc.data();
                 list.innerHTML += `
-                <div class="glass-card p-6 rounded-[2rem] flex justify-between items-center group">
+                <div class="card p-6 flex flex-col justify-between space-y-4">
                     <div>
-                        <h4 class="font-black text-white text-sm uppercase">${p.name}</h4>
-                        <p class="text-[9px] text-cyan-500 font-mono italic">view/${p.subdomain}</p>
+                        <h4 class="font-bold text-gray-800 truncate">${p.name}</h4>
+                        <p class="text-[10px] text-blue-600 font-mono">browhost.app/${p.subdomain}</p>
                     </div>
-                    <a href="${API_BASE}/view/${p.subdomain}/${p.main_file}" target="_blank" class="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center hover:bg-cyan-500 hover:text-black transition-all"><i class="fas fa-external-link-alt text-xs"></i></a>
+                    <a href="${API_BASE}/view/${p.subdomain}/${p.main}" target="_blank" class="text-center bg-gray-100 hover:bg-gray-200 py-2 rounded-lg text-xs font-semibold transition-colors">Open Website</a>
                 </div>`;
             });
         }
 
-        // --- AI LOGIC ---
-        window.toggleAI = () => document.getElementById('ai-chat').classList.toggle('hidden');
-        window.askAI = async () => {
-            const input = document.getElementById('ai-input');
-            const msg = input.value; if(!msg) return;
-            const logs = document.getElementById('chat-logs');
-            logs.innerHTML += `<div class="text-right text-white">USER: ${msg}</div>`;
-            input.value = "";
-            const fd = new FormData(); fd.append('prompt', msg); fd.append('user_plan', userPlan);
-            const res = await fetch(`${API_BASE}/ai-assistant`, { method: 'POST', body: fd });
-            const data = await res.json();
-            logs.innerHTML += `<div class="text-cyan-400">AI: ${data.reply}</div>`;
-            logs.scrollTop = logs.scrollHeight;
-        };
-
-        window.logout = () => signOut(auth).then(() => { localStorage.clear(); window.location.href = 'index.html'; });
+        window.logout = () => signOut(auth).then(() => window.location.href = 'index.html');
     </script>
 </body>
 </html>
