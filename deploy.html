@@ -2,66 +2,84 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard - BrowHost</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | BrowHost</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body { background-color: #050505; color: #eee; font-family: 'Inter', sans-serif; }
         .repo-card { background: #111; border: 1px solid #222; transition: 0.3s; }
-        .repo-card:hover { border-color: #00d2ff; }
-        .glass-modal { background: rgba(10, 10, 10, 0.9); backdrop-filter: blur(15px); border: 1px solid #333; }
+        .repo-card:hover { border-color: #00d2ff; box-shadow: 0 0 15px rgba(0, 210, 255, 0.1); }
         .neon-text { color: #00d2ff; text-shadow: 0 0 10px rgba(0, 210, 255, 0.3); }
+        .glass-modal { background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(20px); border: 1px solid #333; }
+        /* Settings Gear Animation */
+        .fa-cog:hover { transform: rotate(90deg); transition: 0.4s; color: #00d2ff; }
     </style>
 </head>
 <body>
-    <nav class="p-6 border-b border-gray-800 flex justify-between items-center bg-[#0a0a0a]">
-        <h1 class="text-2xl font-black italic tracking-tighter">BROW<span class="neon-text">HOST</span></h1>
-        <div id="user-info" class="flex items-center gap-3 text-sm text-gray-400">
-            <span id="username-display">Ghost User</span>
+
+    <nav class="p-6 border-b border-gray-800 flex justify-between items-center bg-[#0a0a0a] sticky top-0 z-40">
+        <h1 class="text-2xl font-black italic tracking-tighter cursor-pointer" onclick="location.reload()">
+            BROW<span class="neon-text">HOST</span>
+        </h1>
+        <div id="user-info" class="flex items-center gap-3 text-sm font-mono">
+            <i class="fab fa-github text-xl"></i>
+            <span id="username-display" class="text-cyan-400">Connecting...</span>
         </div>
     </nav>
 
-    <main class="max-w-4xl mx-auto p-6">
-        <section id="deployed-section" class="mb-12">
-            <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
-                <i class="fas fa-rocket text-cyan-400"></i> Active Deployments
+    <main class="max-w-5xl mx-auto p-6">
+        
+        <section class="mb-12">
+            <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+                <i class="fas fa-server text-green-500"></i> Active Projects 
+                <span id="project-count" class="bg-gray-800 text-xs px-2 py-1 rounded-full text-gray-400 ml-2">0</span>
             </h2>
-            <div id="active-list" class="grid gap-4">
-                <p class="text-gray-600 italic text-sm">No active projects yet.</p>
+            <div id="active-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="col-span-full py-10 border-2 border-dashed border-gray-800 rounded-2xl text-center">
+                    <p class="text-gray-600 italic">No projects deployed yet. Select a repo below to start.</p>
+                </div>
             </div>
         </section>
 
+        <hr class="border-gray-900 mb-12">
+
         <section>
-            <h2 class="text-xl font-bold mb-4">Your GitHub Repositories</h2>
-            <div id="repos-list" class="grid gap-4">
-                <p class="animate-pulse text-gray-500">Fetching repositories...</p>
+            <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+                <i class="fab fa-github text-white"></i> Your Repositories
+            </h2>
+            <div id="repos-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="repo-card p-6 rounded-xl animate-pulse bg-gray-900/50 h-24"></div>
+                <div class="repo-card p-6 rounded-xl animate-pulse bg-gray-900/50 h-24"></div>
             </div>
         </section>
     </main>
 
-    <div id="settings-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/80">
-        <div class="glass-modal w-full max-w-md p-8 rounded-2xl">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold">Project Settings</h3>
-                <button onclick="closeSettings()" class="text-gray-500 hover:text-white"><i class="fas fa-times"></i></button>
+    <div id="settings-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/90">
+        <div class="glass-modal w-full max-w-md p-8 rounded-3xl shadow-2xl">
+            <div class="flex justify-between items-center mb-8">
+                <h3 class="text-2xl font-bold flex items-center gap-2">
+                    <i class="fas fa-cog text-cyan-400"></i> Settings
+                </h3>
+                <button onclick="closeSettings()" class="text-gray-500 hover:text-white text-2xl">&times;</button>
             </div>
             
-            <div class="space-y-6">
+            <div class="space-y-8">
                 <div>
-                    <label class="block text-sm text-gray-400 mb-2">Custom Domain / Path</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="edit-domain-input" class="flex-1 bg-black border border-gray-700 rounded-lg p-2 text-sm">
-                        <button onclick="saveDomain()" class="bg-cyan-500 text-black px-4 py-2 rounded-lg font-bold text-xs">Save</button>
+                    <label class="block text-sm font-medium text-gray-400 mb-3">Domain Name / Subdomain</label>
+                    <div class="relative">
+                        <input type="text" id="edit-domain-input" class="w-full bg-black border border-gray-700 rounded-xl p-3 text-sm focus:border-cyan-500 outline-none">
+                        <button onclick="saveDomain()" class="absolute right-2 top-2 bg-cyan-600 text-white px-4 py-1.5 rounded-lg font-bold text-xs hover:bg-cyan-400 transition-all">
+                            Save
+                        </button>
                     </div>
                 </div>
 
-                <hr class="border-gray-800">
-
-                <div class="pt-2">
-                    <h4 class="text-red-500 font-bold mb-2 text-sm uppercase">Danger Zone</h4>
-                    <p class="text-xs text-gray-500 mb-4">Once you delete a project, it cannot be recovered.</p>
-                    <button id="delete-btn" class="w-full bg-red-600/20 text-red-500 border border-red-600/50 py-3 rounded-xl font-bold hover:bg-red-600 hover:text-white transition-all">
-                        Delete Project
+                <div class="pt-6 border-t border-gray-800">
+                    <h4 class="text-red-500 font-bold mb-2 text-sm italic">Danger Zone</h4>
+                    <p class="text-[11px] text-gray-500 mb-4">Deleting this will remove the site from browhost.vercel.app permanently.</p>
+                    <button id="delete-btn" class="w-full bg-red-600/10 text-red-500 border border-red-900/50 py-3 rounded-xl font-bold hover:bg-red-600 hover:text-white transition-all">
+                        <i class="fas fa-trash-alt mr-2"></i> Delete Project
                     </button>
                 </div>
             </div>
@@ -71,63 +89,101 @@
     <script>
         const API_BASE = "https://elitegamer859650-browhost.hf.space";
         let deployedProjects = [];
+        let githubToken = localStorage.getItem('gh_token');
+        let currentEditingId = null;
 
-        // 1. Fetch Repos from Backend
-        async function loadRepos() {
+        // Initialize App
+        async function init() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+
+            if (code) {
+                await exchangeCodeForToken(code);
+            } else if (githubToken) {
+                loadRepos(githubToken);
+            } else {
+                window.location.href = 'login.html';
+            }
+        }
+
+        async function exchangeCodeForToken(code) {
             try {
-                // Yahan hum code handle karne ke baad fetch karenge
-                // Filhal Demo data dikha rahe hain
-                const demoRepos = ['ghost-gaming', 'personal-blog', 'python-api'];
+                const response = await fetch(`${API_BASE}/auth/token?code=${code}`, { method: 'POST' });
+                const data = await response.json();
+                if (data.access_token) {
+                    githubToken = data.access_token;
+                    localStorage.setItem('gh_token', githubToken);
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                    loadRepos(githubToken);
+                }
+            } catch (e) { console.error("Auth Error", e); }
+        }
+
+        async function loadRepos(token) {
+            try {
+                const res = await fetch('https://api.github.com/user/repos?sort=updated', {
+                    headers: { 'Authorization': `token ${token}` }
+                });
+                const repos = await res.json();
+                
+                document.getElementById('username-display').innerText = repos[0].owner.login;
+                
                 const container = document.getElementById('repos-list');
-                container.innerHTML = demoRepos.map(repo => `
-                    <div class="repo-card p-5 rounded-xl flex justify-between items-center">
+                container.innerHTML = repos.map(repo => `
+                    <div class="repo-card p-6 rounded-2xl flex justify-between items-center">
                         <div>
-                            <h4 class="font-bold">${repo}</h4>
-                            <p class="text-xs text-gray-500 italic">Default: browhost.vercel.app/${repo}</p>
+                            <h4 class="font-bold text-lg">${repo.name}</h4>
+                            <p class="text-xs text-gray-500">github.com/${repo.full_name}</p>
                         </div>
-                        <button onclick="deployProject('${repo}')" class="bg-white text-black px-4 py-2 rounded font-bold text-sm">Deploy</button>
+                        <button onclick="deployProject('${repo.name}')" class="bg-white text-black px-6 py-2 rounded-xl font-black text-xs hover:bg-cyan-400 transition-all">
+                            IMPORT
+                        </button>
                     </div>
                 `).join('');
-            } catch (e) { console.error(e); }
+            } catch (e) { console.error("Repo Load Error", e); }
         }
 
-        // 2. Deployment Logic
         function deployProject(repoName) {
-            const project = { id: Date.now(), name: repoName, domain: `browhost.vercel.app/${repoName}` };
+            const project = { 
+                id: Date.now(), 
+                name: repoName, 
+                domain: `browhost.vercel.app/${repoName.toLowerCase()}` 
+            };
             deployedProjects.push(project);
             updateActiveList();
+            alert("Project Imported Successfully! Settings are now available.");
         }
 
-        // 3. Update Active Deployments UI
         function updateActiveList() {
             const list = document.getElementById('active-list');
+            document.getElementById('project-count').innerText = deployedProjects.length;
+
             if(deployedProjects.length === 0) {
-                list.innerHTML = `<p class="text-gray-600 italic text-sm">No active projects yet.</p>`;
+                list.innerHTML = `<div class="col-span-full py-10 border-2 border-dashed border-gray-800 rounded-2xl text-center"><p class="text-gray-600 italic">No projects deployed yet.</p></div>`;
                 return;
             }
+
             list.innerHTML = deployedProjects.map(p => `
-                <div class="bg-cyan-900/10 border border-cyan-500/30 p-5 rounded-xl flex justify-between items-center">
+                <div class="bg-[#0a0a0a] border border-cyan-500/20 p-6 rounded-2xl flex justify-between items-center">
                     <div>
-                        <h4 class="font-bold text-cyan-400">${p.name}</h4>
-                        <a href="#" class="text-xs text-gray-400 underline">${p.domain}</a>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                            <h4 class="font-bold text-white">${p.name}</h4>
+                        </div>
+                        <a href="https://${p.domain}" target="_blank" class="text-[11px] text-gray-500 hover:text-cyan-400 underline">${p.domain}</a>
                     </div>
-                    <button onclick="openSettings(${p.id})" class="text-gray-400 hover:text-white p-2">
-                        <i class="fas fa-cog text-xl"></i>
+                    <button onclick="openSettings(${p.id})" class="bg-gray-900 p-3 rounded-xl hover:bg-gray-800 transition-all">
+                        <i class="fas fa-cog text-xl text-gray-400"></i>
                     </button>
                 </div>
             `).join('');
         }
-
-        // 4. Settings Logic
-        let currentEditingId = null;
 
         function openSettings(id) {
             currentEditingId = id;
             const project = deployedProjects.find(p => p.id === id);
             document.getElementById('edit-domain-input').value = project.domain;
             document.getElementById('settings-modal').classList.remove('hidden');
-            
-            // Setup delete button
             document.getElementById('delete-btn').onclick = () => deleteProject(id);
         }
 
@@ -148,11 +204,10 @@
             const project = deployedProjects.find(p => p.id === currentEditingId);
             project.domain = newDomain;
             updateActiveList();
-            alert("Settings Saved!");
             closeSettings();
         }
 
-        loadRepos();
+        init();
     </script>
 </body>
 </html>
