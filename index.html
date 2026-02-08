@@ -3,119 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <link rel="icon" type="image/png" href="icon.png">
+    <link rel="icon" type="image/png" href="icon.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <title>BrowHost | Pakistan's Free Hosting Platform</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #000000; color: white; scroll-behavior: smooth; }
-        .glass-card { background: #0a0a0a; border: 1px solid #1a1a1a; transition: all 0.3s ease; display: flex; flex-direction: column; }
-        .glass-card:hover { border-color: #2563eb; transform: translateY(-8px); box-shadow: 0 10px 30px -10px rgba(37, 99, 235, 0.2); }
-        .blue-glow { box-shadow: 0 0 20px rgba(37, 99, 235, 0.1); }
-        .hero-gradient { background: linear-gradient(to bottom, #000000, #050505); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #000000; color: white; scroll-behavior: smooth; overflow-x: hidden; }
+        
+        .glass-card { background: #0a0a0a; border: 1px solid rgba(255,255,255,0.05); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .glass-card:hover { border-color: #2563eb; transform: translateY(-10px); box-shadow: 0 20px 40px -20px rgba(37, 99, 235, 0.4); }
+        
+        .blue-glow { box-shadow: 0 0 20px rgba(37, 99, 235, 0.2); }
+        .hero-gradient { background: radial-gradient(circle at top, #0a1120 0%, #000000 100%); }
+        
+        .nav-link:hover { color: #2563eb; text-shadow: 0 0 10px rgba(37, 99, 235, 0.5); }
+        
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
+        .float-anim { animation: float 3s ease-in-out infinite; }
     </style>
 </head>
 <body>
 
     <header class="flex justify-between items-center px-8 py-6 max-w-7xl mx-auto border-b border-white/5 sticky top-0 bg-black/80 backdrop-blur-md z-50">
-        <div class="text-2xl font-black tracking-tighter text-blue-500">BROW<span class="text-white">HOST</span></div>
-        <nav class="flex gap-6 text-sm font-medium">
-            <a href="about.html" class="text-gray-400 hover:text-white transition-colors">About</a>
-            <button onclick="handleStart()" class="text-blue-500 font-bold hover:scale-105 transition-all">Get started</button>
+        <div class="text-2xl font-black tracking-tighter text-blue-600 uppercase italic">BROW<span class="text-white">HOST</span></div>
+        <nav class="flex gap-8 text-xs font-bold uppercase tracking-widest items-center">
+            <a href="#" class="text-gray-400 nav-link transition-all">About</a>
+            <a href="#" class="text-gray-400 nav-link transition-all">Pricing</a>
+            <button onclick="handleStart()" class="bg-blue-600 px-6 py-2 rounded-full text-white hover:bg-blue-700 transition-all blue-glow">Console</button>
         </nav>
     </header>
 
-    <section class="text-center py-24 px-4 hero-gradient">
-        <h1 class="text-5xl md:text-7xl font-black mb-6 tracking-tight text-white">Start Deploying Your Site <br><span class="text-blue-600">Totally Free</span></h1>
-        <p class="text-gray-500 text-lg md:text-xl max-w-2xl mx-auto mb-10">High-performance hosting for modern developers. Fast, Secure, and Reliable.</p>
-        <button onclick="handleStart()" class="bg-blue-600 hover:bg-blue-700 text-white font-extrabold py-4 px-12 rounded-full transition-all active:scale-95 blue-glow text-lg">
-            Start Deploying Now
+    <section class="text-center py-32 px-4 hero-gradient relative">
+        <div class="absolute top-10 left-1/2 -translate-x-1/2 w-96 h-96 bg-blue-600/10 rounded-full blur-[120px] -z-10"></div>
+        <h1 class="text-6xl md:text-8xl font-black mb-6 tracking-tighter text-white leading-none">DEPLOY IN <br><span class="text-blue-600">SECONDS.</span></h1>
+        <p class="text-gray-500 text-lg md:text-xl max-w-2xl mx-auto mb-12 font-medium">The high-performance cloud engine for Pakistan's next generation of developers. Fast. Secure. <span class="text-white">Totally Free.</span></p>
+        <button onclick="handleStart()" class="bg-blue-600 hover:bg-blue-700 text-white font-black py-5 px-14 rounded-2xl transition-all active:scale-95 blue-glow text-xl uppercase tracking-widest">
+            Launch Your Project
         </button>
     </section>
 
-    <section class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 px-8 mb-24">
-        <div class="glass-card p-10 rounded-3xl">
-            <h1 class="text-2xl font-bold mb-4 text-blue-500"><i class="fas fa-lock mr-2"></i> Security</h1>
-            <p class="text-gray-500">Full high security. Your site data has been protected in our global servers with 256-bit encryption.</p>
+    <section class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 px-8 mb-32">
+        <div class="glass-card p-10 rounded-[2.5rem] float-anim" style="animation-delay: 0s;">
+            <div class="w-12 h-12 bg-blue-600/10 rounded-2xl flex items-center justify-center mb-6 border border-blue-600/20 text-blue-500">
+                <i class="fas fa-shield-alt text-2xl"></i>
+            </div>
+            <h1 class="text-2xl font-black mb-4 tracking-tight">Enterprise Security</h1>
+            <p class="text-gray-500 leading-relaxed text-sm">Global-grade 256-bit encryption. Your source code and assets are protected by BrowHost's secure edge nodes.</p>
         </div>
-        <div class="glass-card p-10 rounded-3xl">
-            <h1 class="text-2xl font-bold mb-4 text-blue-500"><i class="fas fa-globe mr-2"></i> Domain</h1>
-            <p class="text-gray-500">Custom domains are available and free subdomain also <span class="text-white">.browhost.js.org</span>.</p>
+        <div class="glass-card p-10 rounded-[2.5rem] float-anim" style="animation-delay: 0.2s;">
+            <div class="w-12 h-12 bg-blue-600/10 rounded-2xl flex items-center justify-center mb-6 border border-blue-600/20 text-blue-500">
+                <i class="fas fa-bolt text-2xl"></i>
+            </div>
+            <h1 class="text-2xl font-black mb-4 tracking-tight">Instant Subdomains</h1>
+            <p class="text-gray-500 leading-relaxed text-sm">Get a professional <span class="text-white">.browhost.app</span> link instantly or connect your premium TLDs in seconds.</p>
         </div>
-        <div class="glass-card p-10 rounded-3xl">
-            <h1 class="text-2xl font-bold mb-4 text-blue-500"><i class="fas fa-cloud mr-2"></i> Hosting</h1>
-            <p class="text-gray-500">Hosting is 100% free forever for students, and for paid storage plans are available for companies.</p>
+        <div class="glass-card p-10 rounded-[2.5rem] float-anim" style="animation-delay: 0.4s;">
+            <div class="w-12 h-12 bg-blue-600/10 rounded-2xl flex items-center justify-center mb-6 border border-blue-600/20 text-blue-500">
+                <i class="fas fa-brain text-2xl"></i>
+            </div>
+            <h1 class="text-2xl font-black mb-4 tracking-tight">AI Debugging</h1>
+            <p class="text-gray-500 leading-relaxed text-sm">Integrated AI Assistant to help you fix code errors and optimize deployments in real-time. (Pro Feature)</p>
         </div>
     </section>
 
-    <section class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6 px-8 pb-32">
+    <section class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6 px-8 pb-40">
         
-        <div class="glass-card p-8 rounded-[2.5rem]">
-            <h1 class="text-xl font-bold text-blue-500 mb-2">Free</h1>
-            <h2 class="text-xs text-gray-500 mb-4">Best for solo users.</h2>
-            <h3 class="text-3xl font-black mb-6">Rs. 0 <span class="text-sm font-normal text-gray-400">/mo</span></h3>
-            <div class="space-y-3 text-sm text-gray-400 mb-8 flex-grow">
-                <p><i class="fas fa-check text-green-500 mr-2"></i> Hosting: Yes</p>
-                <p><i class="fas fa-times text-red-500 mr-2"></i> Custom domain: No</p>
-                <p><i class="fas fa-check text-green-500 mr-2"></i> Subdomain: Yes</p>
-                <p><i class="fas fa-check text-green-500 mr-2"></i> Storage: 1GB</p>
+        <div class="glass-card p-8 rounded-[3rem] flex flex-col">
+            <h1 class="text-lg font-black text-blue-600 mb-1 uppercase tracking-tighter">Solo</h1>
+            <p class="text-[10px] text-gray-500 mb-6 font-bold">FOR HOBBYISTS</p>
+            <h3 class="text-4xl font-black mb-8">Rs. 0<span class="text-sm font-normal text-gray-500"> /mo</span></h3>
+            <div class="space-y-4 text-xs font-bold text-gray-400 mb-10 flex-grow">
+                <p><i class="fas fa-check text-blue-600 mr-2"></i> 1GB SSD STORAGE</p>
+                <p><i class="fas fa-check text-blue-600 mr-2"></i> FREE SUBDOMAIN</p>
+                <p><i class="fas fa-times text-red-900 mr-2"></i> NO CUSTOM DOMAIN</p>
+                <p><i class="fas fa-times text-red-900 mr-2"></i> NO AI ASSISTANT</p>
             </div>
-            <button onclick="handleStart()" class="block w-full text-center py-3 border border-white/10 rounded-xl hover:bg-white hover:text-black transition-all font-bold text-sm">Choose plan</button>
+            <button onclick="handleStart()" class="w-full py-4 border border-white/5 rounded-2xl hover:bg-white hover:text-black transition-all font-black text-[10px] uppercase tracking-widest">Deploy Now</button>
         </div>
 
-        <div class="glass-card p-8 rounded-[2.5rem]">
-            <h1 class="text-xl font-bold text-blue-500 mb-2">Spark</h1>
-            <h2 class="text-xs text-gray-500 mb-4">Best for Business.</h2>
-            <h3 class="text-3xl font-black mb-6">Rs. 15,000 pkr <span class="text-sm font-normal text-gray-400">/mo</span></h3>
-            <div class="space-y-3 text-sm text-gray-400 mb-8 flex-grow">
-                <p><i class="fas fa-check text-green-500 mr-2"></i> Hosting: Yes</p>
-                <p><i class="fas fa-times text-red-500 mr-2"></i> Custom domain: No</p>
-                <p><i class="fas fa-check text-green-500 mr-2"></i> Subdomain: Yes</p>
-                <p><i class="fas fa-check text-green-500 mr-2"></i> Storage: 5GB</p>
+        <div class="glass-card p-8 rounded-[3rem] flex flex-col">
+            <h1 class="text-lg font-black text-blue-600 mb-1 uppercase tracking-tighter">Spark</h1>
+            <p class="text-[10px] text-gray-500 mb-6 font-bold">FOR STARTUPS</p>
+            <h3 class="text-4xl font-black mb-8 text-white">Rs. 15k<span class="text-sm font-normal text-gray-500"> /mo</span></h3>
+            <div class="space-y-4 text-xs font-bold text-gray-400 mb-10 flex-grow">
+                <p><i class="fas fa-check text-blue-600 mr-2"></i> 5GB SSD STORAGE</p>
+                <p><i class="fas fa-check text-blue-600 mr-2"></i> BROWHOST SUBDOMAIN</p>
+                <p><i class="fas fa-check text-blue-600 mr-2"></i> PRIORITY SUPPORT</p>
+                <p><i class="fas fa-times text-red-900 mr-2"></i> NO AI ASSISTANT</p>
             </div>
-            <button onclick="handleStart()" class="block w-full text-center py-3 border border-white/10 rounded-xl hover:bg-white hover:text-black transition-all font-bold text-sm">Choose plan</button>
+            <button onclick="handleStart()" class="w-full py-4 border border-white/5 rounded-2xl hover:bg-white hover:text-black transition-all font-black text-[10px] uppercase tracking-widest">Get Spark</button>
         </div>
 
-        <div class="glass-card p-8 rounded-[2.5rem] border-blue-600 bg-blue-600/5 relative">
-            <div class="absolute top-4 right-6 bg-blue-600 text-[10px] px-2 py-0.5 rounded font-bold uppercase italic">Hot</div>
-            <h1 class="text-xl font-bold text-blue-500 mb-2 text-blue-400">Premium</h1>
-            <h2 class="text-xs text-gray-500 mb-4">Best for Companies.</h2>
-            <h3 class="text-3xl font-black mb-6 text-white">Rs. 25,000 pkr<span class="text-sm font-normal text-gray-400">/mo</span></h3>
-            <div class="space-y-3 text-sm text-gray-400 mb-8 flex-grow">
-                <p><i class="fas fa-check text-blue-500 mr-2"></i> Hosting: Yes</p>
-                <p><i class="fas fa-check text-blue-500 mr-2"></i> Custom domain: Yes</p>
-                <p><i class="fas fa-check text-blue-500 mr-2"></i> Subdomain: Yes</p>
-                <p><i class="fas fa-check text-blue-500 mr-2"></i> Storage: 12GB</p>
-                <p><i class="fas fa-check text-blue-500 mr-2"></i> AI Assistant: Yes</p>
+        <div class="glass-card p-8 rounded-[3rem] flex flex-col border-blue-600 bg-blue-600/5 relative scale-105 z-10 blue-glow">
+            <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-[10px] px-4 py-1 rounded-full font-black uppercase italic tracking-widest">Most Popular</div>
+            <h1 class="text-lg font-black text-blue-400 mb-1 uppercase tracking-tighter">Premium</h1>
+            <p class="text-[10px] text-blue-300/50 mb-6 font-bold">FOR COMPANIES</p>
+            <h3 class="text-4xl font-black mb-8 text-white">Rs. 25k<span class="text-sm font-normal text-gray-500"> /mo</span></h3>
+            <div class="space-y-4 text-xs font-bold text-gray-200 mb-10 flex-grow">
+                <p><i class="fas fa-check text-blue-400 mr-2"></i> 12GB SSD STORAGE</p>
+                <p><i class="fas fa-check text-blue-400 mr-2"></i> CUSTOM DOMAINS</p>
+                <p><i class="fas fa-check text-blue-400 mr-2"></i> AI ASSISTANT PRO</p>
+                <p><i class="fas fa-check text-blue-400 mr-2"></i> NO ADS / BRANDING</p>
             </div>
-            <button onclick="handleStart()" class="block w-full text-center py-3 bg-blue-600 rounded-xl hover:bg-blue-700 transition-all font-bold text-sm text-white shadow-lg shadow-blue-600/20">Choose plan</button>
+            <button onclick="handleStart()" class="w-full py-4 bg-blue-600 text-white rounded-2xl hover:bg-blue-700 transition-all font-black text-[10px] uppercase tracking-widest shadow-xl shadow-blue-600/20">Go Premium</button>
         </div>
 
-        <div class="glass-card p-8 rounded-[2.5rem]">
-            <h1 class="text-xl font-bold text-blue-500 mb-2">Pro</h1>
-            <h2 class="text-xs text-gray-500 mb-4 leading-tight">Best for software services.</h2>
-            <h3 class="text-3xl font-black mb-6">Rs. 40,000 pkr<span class="text-sm font-normal text-gray-400">/mo</span></h3>
-            <div class="space-y-2 text-[13px] text-gray-400 mb-8 flex-grow">
-                <p><i class="fas fa-check text-blue-500 mr-2"></i> Hosting: Yes</p>
-                <p><i class="fas fa-check text-blue-500 mr-2"></i> Custom domain: Yes</p>
-                <p><i class="fas fa-check text-blue-500 mr-2"></i> Storage: Unlimited</p>
-                <p><i class="fas fa-check text-blue-500 mr-2"></i> AI Assistant: Yes</p>
-                <p><i class="fas fa-check text-blue-500 mr-2"></i> High Security: Yes</p>
-                <p><i class="fas fa-check text-blue-500 mr-2"></i> Analytics: Yes</p>
+        <div class="glass-card p-8 rounded-[3rem] flex flex-col">
+            <h1 class="text-lg font-black text-blue-600 mb-1 uppercase tracking-tighter">Pro</h1>
+            <p class="text-[10px] text-gray-500 mb-6 font-bold">ULTIMATE ENGINE</p>
+            <h3 class="text-4xl font-black mb-8">Rs. 40k<span class="text-sm font-normal text-gray-500"> /mo</span></h3>
+            <div class="space-y-4 text-xs font-bold text-gray-400 mb-10 flex-grow">
+                <p><i class="fas fa-check text-blue-600 mr-2"></i> UNLIMITED STORAGE</p>
+                <p><i class="fas fa-check text-blue-600 mr-2"></i> UNLIMITED DOMAINS</p>
+                <p><i class="fas fa-check text-blue-600 mr-2"></i> FULL AI DEPLOY</p>
+                <p><i class="fas fa-check text-blue-600 mr-2"></i> 24/7 VIP ENGINE</p>
             </div>
-            <button onclick="handleStart()" class="block w-full text-center py-3 border border-white/10 rounded-xl hover:bg-white hover:text-black transition-all font-bold text-sm">Choose plan</button>
+            <button onclick="handleStart()" class="w-full py-4 border border-white/5 rounded-2xl hover:bg-white hover:text-black transition-all font-black text-[10px] uppercase tracking-widest">Get Pro</button>
         </div>
     </section>
 
-    <script>
-        function handleStart() {
-            if (localStorage.getItem('gh_token')) {
-                window.location.href = 'deploy.html';
-            } else {
-                window.location.href = 'login.html';
-            }
-        }
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDXDvBDxZKRB-BjsjKKDNFieu5D0LBaiD4",
+            authDomain: "rowhostauth.firebaseapp.com",
+            projectId: "rowhostauth",
+            storageBucket: "rowhostauth.firebasestorage.app",
+            messagingSenderId: "522138528836",
+            appId: "1:522138528836:web:e6f0a4e4eac287b4c0e011"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        window.handleStart = () => {
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    window.location.href = 'deploy.html';
+                } else {
+                    window.location.href = 'login.html';
+                }
+            });
+        };
     </script>
 
 </body>
