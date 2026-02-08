@@ -13,7 +13,8 @@
         .neon-text { color: #00d2ff; text-shadow: 0 0 10px rgba(0, 210, 255, 0.3); }
         .input-field { background: #000; border: 1px solid #333; color: #fff; outline: none; transition: 0.2s; }
         .input-field:focus { border-color: #00d2ff; box-shadow: 0 0 5px rgba(0, 210, 255, 0.2); }
-        .tab-active { border-bottom: 2px solid #00d2ff; color: #00d2ff; }
+        .btn-glow { box-shadow: 0 0 15px rgba(0, 210, 255, 0.2); }
+        .btn-glow:hover { box-shadow: 0 0 25px rgba(0, 210, 255, 0.4); }
     </style>
 </head>
 <body>
@@ -23,7 +24,7 @@
             BROW<span class="neon-text">HOST</span>
         </h1>
         <div id="user-info" class="flex items-center gap-3 text-sm font-mono">
-            <i class="fab fa-github text-xl"></i>
+            <i class="fab fa-github text-xl text-white"></i>
             <span id="username-display" class="text-cyan-400">Verifying...</span>
             <button onclick="logout()" class="ml-4 text-red-500 text-xs hover:underline">Logout</button>
         </div>
@@ -33,46 +34,50 @@
         
         <section id="projects-section">
             <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
-                <i class="fas fa-server text-green-500"></i> Active Projects 
+                <i class="fas fa-server text-green-500"></i> Live Sites
                 <span id="project-count" class="bg-gray-800 text-xs px-2 py-1 rounded-full text-gray-400 ml-2">0</span>
             </h2>
             <div id="active-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 </div>
         </section>
 
-        <section id="settings-section" class="hidden animate-in fade-in duration-500">
+        <section id="settings-section" class="hidden">
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-xl font-bold flex items-center gap-2">
-                    <i class="fas fa-tools text-cyan-400"></i> Project Settings: <span id="setting-project-name" class="text-gray-400"></span>
+                    <i class="fas fa-tools text-cyan-400"></i> Settings: <span id="setting-project-name" class="text-gray-400"></span>
                 </h2>
-                <button onclick="hideSettings()" class="text-sm text-gray-500 hover:text-white"><i class="fas fa-arrow-left"></i> Back to Dashboard</button>
+                <button onclick="hideSettings()" class="text-sm text-gray-500 hover:text-white transition-all">
+                    <i class="fas fa-arrow-left"></i> Dashboard
+                </button>
             </div>
 
             <div class="settings-panel rounded-3xl p-8 space-y-8">
                 <div>
-                    <label class="block text-sm font-bold mb-3 uppercase tracking-widest text-gray-500">Edit Subdomain</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="subdomain-input" class="input-field flex-grow p-3 rounded-xl" placeholder="my-awesome-site">
-                        <div class="bg-gray-800 px-4 flex items-center rounded-xl text-gray-400">.browhost.vercel.app</div>
-                        <button onclick="updateSubdomain()" class="bg-cyan-600 hover:bg-cyan-500 px-6 rounded-xl font-bold transition-all text-black text-sm">Update</button>
+                    <label class="block text-sm font-bold mb-3 uppercase tracking-widest text-gray-500">Project Path (Subdomain)</label>
+                    <div class="flex flex-col md:flex-row gap-3">
+                        <div class="flex-grow flex items-center bg-black border border-gray-700 rounded-xl overflow-hidden">
+                            <span class="pl-4 text-gray-600 text-sm">browhost.vercel.app/view/</span>
+                            <input type="text" id="subdomain-input" class="bg-transparent border-none p-3 text-sm text-cyan-400 outline-none w-full" placeholder="site-name">
+                        </div>
+                        <button onclick="updateSubdomain()" class="bg-cyan-600 hover:bg-cyan-500 px-8 py-3 rounded-xl font-bold text-black text-sm transition-all btn-glow">Update</button>
                     </div>
                 </div>
 
                 <div class="pt-8 border-t border-gray-800">
                     <label class="block text-sm font-bold mb-3 uppercase tracking-widest text-gray-500">Custom Domain</label>
-                    <p class="text-xs text-gray-500 mb-4 italic">Point your A Record to <span class="text-cyan-400 font-mono">76.76.21.21</span> before adding.</p>
+                    <p class="text-xs text-gray-500 mb-4 italic">Soon you'll be able to link your own domain (e.g. ghost.com)</p>
                     <div class="flex gap-2">
                         <input type="text" id="custom-domain-input" class="input-field flex-grow p-3 rounded-xl" placeholder="www.yourdomain.com">
-                        <button onclick="addCustomDomain()" class="bg-white text-black hover:bg-gray-200 px-6 rounded-xl font-bold transition-all text-sm">Add Domain</button>
+                        <button onclick="addCustomDomain()" class="bg-white text-black hover:bg-gray-200 px-6 rounded-xl font-bold transition-all text-sm">Add</button>
                     </div>
-                    <div id="custom-domain-list" class="mt-4 space-y-2">
-                        </div>
+                    <div id="custom-domain-list" class="mt-4"></div>
                 </div>
 
                 <div class="pt-8 border-t border-red-900/30">
-                    <h4 class="text-red-500 font-bold mb-2">Danger Zone</h4>
+                    <h4 class="text-red-500 font-bold mb-2">Delete Project</h4>
+                    <p class="text-xs text-gray-600 mb-4">This will remove the site from BrowHost but keep your GitHub repo safe.</p>
                     <button onclick="deleteProject()" class="text-xs bg-red-600/10 text-red-500 border border-red-600/20 px-4 py-2 rounded-lg hover:bg-red-600 hover:text-white transition-all">
-                        Delete this project permanently
+                        Delete Permanently
                     </button>
                 </div>
             </div>
@@ -80,7 +85,7 @@
 
         <section id="import-section">
             <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
-                <i class="fab fa-github text-white"></i> Import Repositories
+                <i class="fab fa-github text-white"></i> Your GitHub Repositories
             </h2>
             <div id="repos-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="repo-card p-6 rounded-xl animate-pulse bg-gray-900/50 h-24"></div>
@@ -94,6 +99,7 @@
         let githubToken = localStorage.getItem('gh_token');
         let currentEditingId = null;
 
+        // Start Dashboard
         async function init() {
             const urlParams = new URLSearchParams(window.location.search);
             const code = urlParams.get('code');
@@ -112,59 +118,86 @@
                     window.history.replaceState({}, document.title, window.location.pathname);
                     loadRepos(githubToken);
                 }
-            } catch (e) { alert("Auth Failed!"); }
+            } catch (e) { console.error("Auth Fail"); }
         }
 
         async function loadRepos(token) {
             try {
-                const res = await fetch('https://api.github.com/user/repos?sort=updated', {
+                const res = await fetch('https://api.github.com/user/repos?sort=updated&per_page=100', {
                     headers: { 'Authorization': `token ${token}` }
                 });
                 const repos = await res.json();
-                document.getElementById('username-display').innerText = repos[0].owner.login;
+                if(repos.length > 0) document.getElementById('username-display').innerText = repos[0].owner.login;
+                
                 const container = document.getElementById('repos-list');
                 container.innerHTML = repos.map(repo => `
                     <div class="repo-card p-6 rounded-2xl flex justify-between items-center">
-                        <div class="overflow-hidden"><h4 class="font-bold truncate">${repo.name}</h4></div>
-                        <button onclick="deployProject('${repo.name}')" class="bg-white text-black px-4 py-2 rounded-lg font-black text-[10px] hover:bg-cyan-400">IMPORT</button>
+                        <div class="overflow-hidden"><h4 class="font-bold truncate text-sm">${repo.name}</h4></div>
+                        <button onclick="deployProject('${repo.full_name}')" class="bg-white text-black px-5 py-2 rounded-lg font-black text-xs hover:bg-cyan-400 transition-all shadow-lg">IMPORT</button>
                     </div>
                 `).join('');
             } catch (e) { console.error(e); }
         }
 
-        function deployProject(repoName) {
-            const project = { 
-                id: Date.now(), 
-                name: repoName, 
-                subdomain: repoName.toLowerCase(),
-                customDomain: null
-            };
-            deployedProjects.unshift(project);
-            saveToStorage();
-            updateActiveList();
+        // --- NEW LOGIC: Deploy to B2 ---
+        async function deployProject(repoFullName) {
+            const btn = event.target;
+            btn.innerText = "DEPLOYING...";
+            btn.disabled = true;
+
+            try {
+                // Call Hugging Face Engine
+                const response = await fetch(`${API_BASE}/deploy-engine?repo_full_name=${repoFullName}&token=${githubToken}`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+
+                if (data.status === "success") {
+                    const project = { 
+                        id: Date.now(), 
+                        name: repoFullName.split('/')[1], 
+                        subdomain: data.deploy_id, // Path in B2
+                        customDomain: null
+                    };
+                    deployedProjects.unshift(project);
+                    saveToStorage();
+                    updateActiveList();
+                    alert("Site is now LIVE on BrowHost!");
+                } else {
+                    alert("Error: " + data.error);
+                }
+            } catch (e) {
+                alert("Connection to Engine failed!");
+            } finally {
+                btn.innerText = "IMPORT";
+                btn.disabled = false;
+            }
         }
 
         function updateActiveList() {
             const list = document.getElementById('active-list');
             document.getElementById('project-count').innerText = deployedProjects.length;
             if(deployedProjects.length === 0) {
-                list.innerHTML = `<div class="col-span-full py-10 border-2 border-dashed border-gray-800 rounded-2xl text-center"><p class="text-gray-600 italic">No projects yet.</p></div>`;
+                list.innerHTML = `<div class="col-span-full py-16 border-2 border-dashed border-gray-800 rounded-3xl text-center"><p class="text-gray-600 italic">No projects deployed. Start by importing a repo.</p></div>`;
                 return;
             }
             list.innerHTML = deployedProjects.map(p => `
-                <div class="bg-[#0a0a0a] border border-gray-800 p-5 rounded-2xl flex justify-between items-center hover:border-cyan-500/50 transition-all">
+                <div class="bg-[#0a0a0a] border border-gray-800 p-6 rounded-2xl flex justify-between items-center hover:border-cyan-500/30 transition-all group">
                     <div>
-                        <h4 class="font-bold text-white text-sm">${p.name}</h4>
-                        <a href="https://${p.subdomain}.browhost.vercel.app" target="_blank" class="text-[10px] text-gray-500 hover:text-cyan-400 underline italic">${p.subdomain}.browhost.vercel.app</a>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                            <h4 class="font-bold text-white text-sm">${p.name}</h4>
+                        </div>
+                        <a href="https://browhost.vercel.app/view/${p.subdomain}" target="_blank" class="text-[10px] text-gray-500 group-hover:text-cyan-400 underline italic transition-all">browhost.vercel.app/view/${p.subdomain}</a>
                     </div>
-                    <button onclick="showSettings(${p.id})" class="bg-gray-900 p-2 rounded-lg hover:bg-gray-800">
-                        <i class="fas fa-cog text-gray-400"></i>
+                    <button onclick="showSettings(${p.id})" class="bg-gray-900 p-3 rounded-xl hover:bg-gray-800 text-gray-500 hover:text-white">
+                        <i class="fas fa-cog"></i>
                     </button>
                 </div>
             `).join('');
         }
 
-        // --- NEW SETTINGS PAGE LOGIC ---
+        // --- SETTINGS PAGE LOGIC ---
         function showSettings(id) {
             currentEditingId = id;
             const project = deployedProjects.find(p => p.id === id);
@@ -186,12 +219,12 @@
         }
 
         function updateSubdomain() {
-            const newSub = document.getElementById('subdomain-input').value.toLowerCase().replace(/\s+/g, '-');
+            const newSub = document.getElementById('subdomain-input').value.toLowerCase().trim().replace(/\s+/g, '-');
             const project = deployedProjects.find(p => p.id === currentEditingId);
-            project.subdomain = newSub;
+            project.subdomain = newSub; // Update local URL mapping
             saveToStorage();
             updateActiveList();
-            alert("Subdomain updated!");
+            alert("Path updated successfully!");
         }
 
         function addCustomDomain() {
@@ -208,12 +241,12 @@
             const list = document.getElementById('custom-domain-list');
             if(project.customDomain) {
                 list.innerHTML = `
-                    <div class="bg-black/50 border border-green-900/30 p-3 rounded-xl flex justify-between items-center">
-                        <span class="text-sm font-mono text-green-400">${project.customDomain}</span>
+                    <div class="bg-black border border-gray-800 p-4 rounded-xl flex justify-between items-center">
+                        <span class="text-sm font-mono text-cyan-400">${project.customDomain}</span>
                         <button onclick="removeCustomDomain()" class="text-red-500 text-xs hover:underline">Remove</button>
                     </div>`;
             } else {
-                list.innerHTML = `<p class="text-[10px] text-gray-600 italic">No custom domain linked.</p>`;
+                list.innerHTML = `<p class="text-[10px] text-gray-600 italic">No custom domains added yet.</p>`;
             }
         }
 
@@ -225,7 +258,7 @@
         }
 
         function deleteProject() {
-            if(confirm("Ghost bhai, kya waqai is project ko delete karna hai?")) {
+            if(confirm("Are you sure? This will remove the site from BrowHost list.")) {
                 deployedProjects = deployedProjects.filter(p => p.id !== currentEditingId);
                 saveToStorage();
                 updateActiveList();
