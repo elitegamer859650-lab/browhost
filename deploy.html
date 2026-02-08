@@ -3,175 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | BrowHost</title>
+    <title>Dashboard | BrowHost Engine</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background-color: #050505; color: #eee; font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
-        .repo-card, .settings-panel { background: #111; border: 1px solid #222; transition: 0.3s; }
-        .repo-card:hover { border-color: #00d2ff; }
-        .neon-text { color: #00d2ff; text-shadow: 0 0 10px rgba(0, 210, 255, 0.3); }
-        .input-field { background: #000; border: 1px solid #333; color: #fff; outline: none; transition: 0.2s; padding: 12px; width: 100%; border-radius: 12px; }
-        .btn-glow { background: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%); transition: 0.3s; box-shadow: 0 0 15px rgba(0, 210, 255, 0.2); }
-        .btn-glow:hover { transform: translateY(-2px); box-shadow: 0 0 25px rgba(0, 210, 255, 0.4); }
-        .drop-zone { border: 2px dashed #222; transition: 0.3s; cursor: pointer; }
-        .drop-zone:hover { border-color: #00d2ff; background: rgba(0, 210, 255, 0.05); }
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap');
+        body { background-color: #020202; color: #eee; font-family: 'Space Grotesk', sans-serif; }
+        .neon-text { color: #00d2ff; text-shadow: 0 0 10px rgba(0, 210, 255, 0.4); }
+        .glass-card { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); }
+        .btn-glow { background: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%); box-shadow: 0 0 20px rgba(0, 210, 255, 0.3); }
+        .ai-glow { box-shadow: 0 0 30px rgba(0, 210, 255, 0.2); animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        .hidden { display: none !important; }
     </style>
 </head>
-<body>
+<body class="pb-20">
 
-    <nav class="p-6 border-b border-gray-800 flex justify-between items-center bg-[#0a0a0a] sticky top-0 z-40">
+    <nav class="p-6 border-b border-white/5 flex justify-between items-center sticky top-0 bg-black/80 z-50 backdrop-blur-md">
         <h1 class="text-2xl font-black italic tracking-tighter cursor-pointer" onclick="location.reload()">
             BROW<span class="neon-text">HOST</span>
         </h1>
-        <div id="user-info" class="flex items-center gap-3 text-sm">
-            <img id="user-pic" src="" class="w-8 h-8 rounded-full border border-cyan-500 hidden">
-            <div class="flex flex-col text-right">
-                <span id="username-display" class="text-white font-bold leading-none">Verifying...</span>
-                <span class="text-[10px] text-gray-500 uppercase">Engine User</span>
+        <div id="user-info" class="flex items-center gap-4">
+            <div class="text-right flex flex-col">
+                <span id="username-display" class="text-white font-bold text-sm">...</span>
+                <span id="user-plan-badge" class="text-[9px] bg-gray-800 text-gray-400 px-2 py-0.5 rounded-full self-end uppercase font-black tracking-tighter mt-1">Free Tier</span>
             </div>
-            <button onclick="logout()" class="ml-4 text-red-500 text-xs hover:underline hover:text-red-400">Logout</button>
+            <img id="user-pic" class="w-10 h-10 rounded-2xl border border-cyan-500/50 object-cover">
+            <button onclick="logout()" class="text-red-500 text-xs hover:bg-red-500/10 p-2 rounded-lg transition-all"><i class="fas fa-power-off"></i></button>
         </div>
     </nav>
 
-    <main class="max-w-5xl mx-auto p-6 space-y-12">
+    <main class="max-w-5xl mx-auto p-6 space-y-12 mt-8">
         
-        <section id="projects-section">
-            <div class="flex justify-between items-end mb-6">
-                <div>
-                    <h2 class="text-2xl font-black flex items-center gap-2">
-                        <i class="fas fa-layer-group text-cyan-500"></i> Active Projects
-                    </h2>
-                    <p class="text-xs text-gray-500">Manage and monitor your live deployments</p>
-                </div>
-                <div class="flex flex-col items-end">
-                    <span id="project-count" class="text-3xl font-black text-white">0</span>
-                    <div class="flex items-center gap-2 text-[9px] text-gray-500 uppercase font-bold tracking-widest">
-                        Storage Engine: <span class="w-2 h-2 rounded-full bg-yellow-500" id="engine-status"></span>
-                    </div>
-                </div>
+        <section class="flex justify-between items-center">
+            <div class="space-y-1">
+                <h2 class="text-3xl font-black tracking-tight">Project <span class="text-cyan-500">Nexus</span></h2>
+                <p class="text-gray-500 text-xs uppercase tracking-widest font-bold">Cloud Engine Status: <span class="text-green-500">Active</span></p>
             </div>
-            <div id="active-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            <div class="text-right">
+                <span id="project-count" class="text-5xl font-black italic opacity-20">0</span>
+            </div>
         </section>
 
-        <section id="upload-section" class="settings-panel p-1 w-full rounded-3xl overflow-hidden">
-            <div class="p-10 drop-zone rounded-[22px] flex flex-col items-center justify-center space-y-4" onclick="document.getElementById('folder-input').click()">
-                <div class="w-20 h-20 bg-gray-900 rounded-full flex items-center justify-center border border-gray-800">
-                    <i class="fas fa-upload text-3xl text-cyan-400"></i>
+        <section id="active-list" class="grid grid-cols-1 md:grid-cols-2 gap-6"></section>
+
+        <section id="upload-section" class="glass-card rounded-[2.5rem] p-1 border-white/10 overflow-hidden">
+            <div class="p-12 border-2 border-dashed border-white/5 rounded-[2.2rem] flex flex-col items-center justify-center space-y-6 hover:border-cyan-500/30 transition-all cursor-pointer group" onclick="document.getElementById('folder-input').click()">
+                <div class="w-24 h-24 bg-cyan-500/10 rounded-3xl flex items-center justify-center border border-cyan-500/20 group-hover:scale-110 transition-all">
+                    <i class="fas fa-cloud-upload-alt text-4xl text-cyan-400"></i>
                 </div>
                 <div class="text-center">
-                    <h3 class="text-xl font-bold">Select Project Directory</h3>
-                    <p class="text-gray-500 text-sm">BrowHost will automatically detect your <b>index.html</b></p>
+                    <h3 class="text-xl font-black uppercase tracking-tight">Deploy New Folder</h3>
+                    <p class="text-gray-500 text-xs mt-2">ZIP compression and B2 routing handled automatically.</p>
                 </div>
                 <input type="file" id="folder-input" webkitdirectory directory multiple class="hidden" onchange="handleFileSelect(this)">
             </div>
             
-            <div id="deployment-form" class="hidden p-8 border-t border-gray-900 space-y-6">
+            <div id="deployment-form" class="hidden p-8 border-t border-white/5 space-y-6 bg-black/40">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-2 ml-1">Project Name</label>
-                        <input type="text" id="project-name" class="input-field" placeholder="my-awesome-site">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-2 ml-1">Main Entry File</label>
-                        <input type="text" id="entry-file" class="input-field" value="index.html" placeholder="index.html">
-                    </div>
+                    <input type="text" id="project-name" class="bg-black border border-white/10 p-4 rounded-2xl outline-none focus:border-cyan-500 text-sm" placeholder="Project Name">
+                    <input type="text" id="entry-file" class="bg-black border border-white/10 p-4 rounded-2xl outline-none focus:border-cyan-500 text-sm" value="index.html">
                 </div>
-                
-                <div class="bg-blue-500/5 border border-blue-500/20 p-4 rounded-xl flex items-center gap-3">
-                    <i class="fas fa-info-circle text-blue-400"></i>
-                    <p class="text-xs text-blue-200">Selected <span id="file-count" class="font-bold">0</span> files. Ready to compress and upload.</p>
-                </div>
-
-                <button onclick="handleDeploy()" id="upload-btn" class="btn-glow w-full py-4 rounded-xl font-black text-black uppercase tracking-widest">
-                    Confirm & Deploy
-                </button>
-                <div id="progress" class="text-center text-xs text-cyan-500 hidden font-mono animate-pulse">
-                    <i class="fas fa-cog fa-spin mr-2"></i> ARCHIVING FOLDER STRUCTURE...
-                </div>
+                <button onclick="handleDeploy()" id="upload-btn" class="btn-glow w-full py-5 rounded-2xl font-black text-black uppercase tracking-[0.2em] text-xs">Execute Deployment</button>
+                <div id="progress" class="text-center text-[10px] text-cyan-500 hidden font-bold tracking-widest animate-pulse uppercase">Syncing with Backblaze B2...</div>
             </div>
         </section>
 
-        <section id="settings-section" class="hidden">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-bold flex items-center gap-2">
-                    <i class="fas fa-terminal text-cyan-500"></i> Deployment Details
-                </h2>
-                <button onclick="hideSettings()" class="text-xs text-gray-500 hover:text-white uppercase font-bold tracking-widest">
-                    <i class="fas fa-times mr-1"></i> Close
-                </button>
-            </div>
-            <div class="settings-panel rounded-3xl p-10 space-y-8">
-                <div>
-                    <p class="text-[10px] text-gray-500 uppercase font-bold mb-4 ml-1">Public Endpoint</p>
-                    <div id="subdomain-display" class="bg-black p-5 rounded-2xl text-cyan-400 font-mono text-sm break-all border border-gray-800 shadow-inner"></div>
-                </div>
-                <div class="flex gap-4">
-                    <button id="open-site" class="flex-grow bg-gray-800 py-3 rounded-xl text-xs font-bold hover:bg-gray-700 transition-all">Visit Website</button>
-                    <button onclick="deleteProject()" class="px-6 bg-red-600/10 text-red-500 border border-red-900/20 rounded-xl hover:bg-red-600 hover:text-white transition-all"><i class="fas fa-trash"></i></button>
-                </div>
-            </div>
-        </section>
     </main>
 
-    <script>
-        const API_BASE = "https://elitegamer859650-browhost.hf.space";
-        let deployedProjects = JSON.parse(localStorage.getItem('browhost_projects')) || [];
-        let currentEditingId = null;
+    <div id="ai-widget" class="fixed bottom-8 right-8 z-[60] hidden">
+        <button onclick="toggleAI()" class="w-16 h-16 bg-cyan-500 rounded-2xl flex items-center justify-center shadow-2xl ai-glow">
+            <i class="fas fa-robot text-black text-2xl"></i>
+        </button>
+        <div id="ai-chat" class="hidden absolute bottom-20 right-0 w-80 h-[450px] glass-card rounded-3xl overflow-hidden border-cyan-500/30 flex flex-col shadow-2xl">
+            <div class="bg-cyan-500 p-4 text-black font-black text-xs tracking-widest flex justify-between">
+                <span>BROWHOST AI v1.0</span>
+                <i class="fas fa-times cursor-pointer" onclick="toggleAI()"></i>
+            </div>
+            <div id="chat-logs" class="flex-grow p-4 overflow-y-auto text-[11px] space-y-4 font-mono leading-relaxed">
+                <div class="text-cyan-400">AI: Salaam Ghost Bhai! Coding mein koi masla?</div>
+            </div>
+            <div class="p-3 border-t border-white/5 flex gap-2">
+                <input type="text" id="ai-input" class="flex-grow bg-black border border-white/10 p-3 rounded-xl text-xs outline-none" placeholder="Ask AI Fix...">
+                <button onclick="askAI()" class="bg-cyan-500 text-black px-4 rounded-xl"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
 
-        function init() {
-            const userName = localStorage.getItem('bh_user_name');
-            const userPic = localStorage.getItem('bh_user_pic');
-            if (!userName) { window.location.href = 'index.html'; return; }
-            document.getElementById('username-display').innerText = userName;
-            if (userPic) { const picEl = document.getElementById('user-pic'); picEl.src = userPic; picEl.classList.remove('hidden'); }
-            checkEngine();
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, getDoc, collection, setDoc, query, where, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDXDvBDxZKRB-BjsjKKDNFieu5D0LBaiD4",
+            authDomain: "rowhostauth.firebaseapp.com",
+            projectId: "rowhostauth",
+            storageBucket: "rowhostauth.firebasestorage.app",
+            messagingSenderId: "522138528836",
+            appId: "1:522138528836:web:e6f0a4e4eac287b4c0e011"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const API_BASE = "https://elitegamer859650-browhost.hf.space";
+        const userUID = localStorage.getItem('bh_user_uid');
+        let userPlan = 'free';
+
+        // --- AUTH & PLAN SYNC ---
+        async function syncUser() {
+            if(!userUID) { window.location.href = 'index.html'; return; }
+            
+            const userSnap = await getDoc(doc(db, "users", userUID));
+            if(userSnap.exists()) {
+                const data = userSnap.data();
+                userPlan = data.plan || 'free';
+                document.getElementById('username-display').innerText = data.name;
+                document.getElementById('user-pic').src = data.pic;
+                
+                const badge = document.getElementById('user-plan-badge');
+                badge.innerText = userPlan + " Plan";
+                if(userPlan !== 'free') {
+                    badge.classList.replace('bg-gray-800', 'bg-cyan-500');
+                    badge.classList.replace('text-gray-400', 'text-black');
+                    document.getElementById('ai-widget').classList.remove('hidden');
+                }
+            }
             updateActiveList();
         }
 
-        async function checkEngine() {
-            try {
-                const res = await fetch(API_BASE + "/");
-                if(res.ok) document.getElementById('engine-status').className = "w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_#22c55e]";
-            } catch(e) { document.getElementById('engine-status').className = "w-2 h-2 rounded-full bg-red-500"; }
-        }
-
-        // --- NEW: Smart File Selection ---
-        async function handleFileSelect(input) {
+        // --- PROJECT ENGINE ---
+        window.handleFileSelect = (input) => {
             if(!input.files.length) return;
-            
-            const form = document.getElementById('deployment-form');
-            const nameInput = document.getElementById('project-name');
-            const countLabel = document.getElementById('file-count');
-            
-            form.classList.remove('hidden');
-            countLabel.innerText = input.files.length;
-            
-            // Auto-detect project name from folder
+            document.getElementById('deployment-form').classList.remove('hidden');
             const folderName = input.files[0].webkitRelativePath.split('/')[0];
-            nameInput.value = folderName.toLowerCase().replace(/\s+/g, '-');
+            document.getElementById('project-name').value = folderName.toLowerCase().replace(/\s+/g, '-');
+        };
 
-            // Look for browhost.json
-            for(let file of input.files) {
-                if(file.name === 'browhost.json') {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        try {
-                            const config = JSON.parse(e.target.result);
-                            if(config.name) nameInput.value = config.name;
-                            if(config.main) document.getElementById('entry-file').value = config.main;
-                        } catch(err) { console.error("browhost.json error"); }
-                    };
-                    reader.readAsText(file);
-                }
-            }
-        }
-
-        async function handleDeploy() {
+        window.handleDeploy = async () => {
             const folderInput = document.getElementById('folder-input');
             const projectName = document.getElementById('project-name').value.trim();
-            const entryFile = document.getElementById('entry-file').value.trim();
             const btn = document.getElementById('upload-btn');
             const progress = document.getElementById('progress');
 
@@ -179,22 +150,17 @@
 
             btn.disabled = true;
             progress.classList.remove('hidden');
+            progress.innerText = "COMPRESSING FOLDER ARCHIVE...";
 
             const zip = new JSZip();
-            const files = folderInput.files;
-
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                // Maintain internal structure
-                const path = file.webkitRelativePath.split('/').slice(1).join('/'); 
-                if(path) zip.file(path, file);
+            for (let f of folderInput.files) {
+                const path = f.webkitRelativePath.split('/').slice(1).join('/');
+                if(path) zip.file(path, f);
             }
 
             const zipBlob = await zip.generateAsync({ type: "blob" });
-            progress.innerText = "PUSHING ASSETS TO BACKBLAZE B2...";
-
             const formData = new FormData();
-            formData.append('file', zipBlob, 'project.zip');
+            formData.append('file', zipBlob, 'site.zip');
             formData.append('project_name', projectName);
 
             try {
@@ -202,73 +168,72 @@
                 const data = await res.json();
 
                 if (data.status === "success") {
-                    deployedProjects.unshift({ 
-                        id: Date.now(), 
-                        name: projectName, 
-                        subdomain: data.deploy_id,
-                        main: entryFile 
+                    // SAVE TO FIRESTORE (Not LocalStorage)
+                    const projectID = data.deploy_id;
+                    await setDoc(doc(db, "projects", projectID), {
+                        name: projectName,
+                        subdomain: projectID,
+                        owner_uid: userUID,
+                        main_file: document.getElementById('entry-file').value,
+                        createdAt: new Date()
                     });
-                    saveToStorage();
-                    updateActiveList();
-                    alert("DEPLOYED! Your folder is now a live website.");
-                    document.getElementById('deployment-form').classList.add('hidden');
-                } else { alert("Engine Error: " + data.error); }
-            } catch (e) { alert("Engine offline!"); }
-            finally { btn.disabled = false; progress.classList.add('hidden'); }
-        }
+                    
+                    alert("DEPLOYMENT PROTOCOL COMPLETE!");
+                    location.reload();
+                }
+            } catch (e) { alert("Engine Error!"); }
+        };
 
-        function updateActiveList() {
+        async function updateActiveList() {
             const list = document.getElementById('active-list');
-            document.getElementById('project-count').innerText = deployedProjects.length;
-            if(!deployedProjects.length) {
-                list.innerHTML = `<div class="col-span-full py-16 border-2 border-dashed border-gray-800 rounded-3xl text-center text-gray-500 text-xs italic">Awaiting your first deployment...</div>`;
-                return;
-            }
-            list.innerHTML = deployedProjects.map(p => `
-                <div class="bg-[#0a0a0a] border border-gray-800 p-6 rounded-2xl flex justify-between items-center group hover:border-cyan-500/40 transition-all">
-                    <div>
-                        <h4 class="font-black text-white text-sm uppercase tracking-tighter">${p.name}</h4>
-                        <div class="flex items-center gap-2 mt-1">
-                            <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-                            <span class="text-[9px] text-gray-600 font-mono italic">https://browhost.vercel.app/view/${p.subdomain}</span>
+            const q = query(collection(db, "projects"), where("owner_uid", "==", userUID));
+            const snap = await getDocs(q);
+            
+            document.getElementById('project-count').innerText = snap.size;
+            list.innerHTML = "";
+            
+            snap.forEach(doc => {
+                const p = doc.data();
+                const card = `
+                <div class="glass-card p-6 rounded-[2rem] border-white/5 flex justify-between items-center group hover:border-cyan-500/30 transition-all">
+                    <div class="space-y-1">
+                        <h4 class="font-black text-white text-sm uppercase tracking-widest">${p.name}</h4>
+                        <div class="flex items-center gap-2">
+                            <span class="w-1 h-1 bg-green-500 rounded-full animate-pulse"></span>
+                            <span class="text-[9px] text-gray-500 font-mono italic">view/${p.subdomain}</span>
                         </div>
                     </div>
-                    <button onclick="showSettings(${p.id})" class="bg-gray-900 w-10 h-10 rounded-xl hover:bg-gray-800 text-gray-400 hover:text-cyan-400 transition-all"><i class="fas fa-ellipsis-v"></i></button>
-                </div>
-            `).join('');
+                    <div class="flex gap-2 opacity-20 group-hover:opacity-100 transition-all">
+                        <a href="${API_BASE}/view/${p.subdomain}/${p.main_file}" target="_blank" class="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center hover:bg-cyan-500 hover:text-black transition-all text-xs"><i class="fas fa-external-link-alt"></i></a>
+                    </div>
+                </div>`;
+                list.innerHTML += card;
+            });
         }
 
-        function showSettings(id) {
-            currentEditingId = id;
-            const p = deployedProjects.find(p => p.id === id);
-            document.getElementById('projects-section').classList.add('hidden');
-            document.getElementById('upload-section').classList.add('hidden');
-            document.getElementById('settings-section').classList.remove('hidden');
-            
-            const url = `https://browhost.vercel.app/view/${p.subdomain}/${p.main || 'index.html'}`;
-            document.getElementById('subdomain-display').innerText = url;
-            document.getElementById('open-site').onclick = () => window.open(url, '_blank');
-        }
+        // --- AI CHAT SYSTEM ---
+        window.toggleAI = () => document.getElementById('ai-chat').classList.toggle('hidden');
+        window.askAI = async () => {
+            const input = document.getElementById('ai-input');
+            const logs = document.getElementById('chat-logs');
+            const msg = input.value;
+            if(!msg) return;
 
-        function hideSettings() {
-            document.getElementById('settings-section').classList.add('hidden');
-            document.getElementById('projects-section').classList.remove('hidden');
-            document.getElementById('upload-section').classList.remove('hidden');
-        }
+            logs.innerHTML += `<div class="text-white text-right">YOU: ${msg}</div>`;
+            input.value = "";
 
-        function deleteProject() {
-            if(confirm("DANGER: This will remove the project from your dashboard. Continue?")) {
-                deployedProjects = deployedProjects.filter(p => p.id !== currentEditingId);
-                saveToStorage();
-                updateActiveList();
-                hideSettings();
-            }
-        }
+            const fd = new FormData();
+            fd.append('prompt', msg);
+            fd.append('user_plan', userPlan);
 
-        function saveToStorage() { localStorage.setItem('browhost_projects', JSON.stringify(deployedProjects)); }
-        function logout() { localStorage.clear(); window.location.href = 'index.html'; }
+            const res = await fetch(`${API_BASE}/ai-assistant`, { method: 'POST', body: fd });
+            const data = await res.json();
+            logs.innerHTML += `<div class="text-cyan-400">AI: ${data.reply}</div>`;
+            logs.scrollTop = logs.scrollHeight;
+        };
 
-        init();
+        window.logout = () => { localStorage.clear(); window.location.href = 'index.html'; };
+        syncUser();
     </script>
 </body>
 </html>
