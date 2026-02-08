@@ -7,21 +7,19 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background-color: #050505; color: #eee; font-family: 'Inter', sans-serif; }
-        .repo-card { background: #111; border: 1px solid #222; transition: 0.3s; }
-        .repo-card:hover { border-color: #00d2ff; box-shadow: 0 0 15px rgba(0, 210, 255, 0.1); }
+        body { background-color: #050505; color: #eee; font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+        .repo-card, .settings-panel { background: #111; border: 1px solid #222; transition: 0.3s; }
+        .repo-card:hover { border-color: #00d2ff; }
         .neon-text { color: #00d2ff; text-shadow: 0 0 10px rgba(0, 210, 255, 0.3); }
-        .glass-modal { background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(20px); border: 1px solid #333; }
-        .fa-cog:hover { transform: rotate(90deg); transition: 0.4s; color: #00d2ff; }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #050505; }
-        ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
+        .input-field { background: #000; border: 1px solid #333; color: #fff; outline: none; transition: 0.2s; }
+        .input-field:focus { border-color: #00d2ff; box-shadow: 0 0 5px rgba(0, 210, 255, 0.2); }
+        .tab-active { border-bottom: 2px solid #00d2ff; color: #00d2ff; }
     </style>
 </head>
 <body>
 
     <nav class="p-6 border-b border-gray-800 flex justify-between items-center bg-[#0a0a0a] sticky top-0 z-40">
-        <h1 class="text-2xl font-black italic tracking-tighter cursor-pointer" onclick="location.href='index.html'">
+        <h1 class="text-2xl font-black italic tracking-tighter cursor-pointer" onclick="location.reload()">
             BROW<span class="neon-text">HOST</span>
         </h1>
         <div id="user-info" class="flex items-center gap-3 text-sm font-mono">
@@ -31,49 +29,64 @@
         </div>
     </nav>
 
-    <main class="max-w-5xl mx-auto p-6">
+    <main class="max-w-5xl mx-auto p-6 space-y-12">
         
-        <section class="mb-12">
+        <section id="projects-section">
             <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
                 <i class="fas fa-server text-green-500"></i> Active Projects 
                 <span id="project-count" class="bg-gray-800 text-xs px-2 py-1 rounded-full text-gray-400 ml-2">0</span>
             </h2>
             <div id="active-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="col-span-full py-10 border-2 border-dashed border-gray-800 rounded-2xl text-center">
-                    <p class="text-gray-600 italic text-sm">No projects deployed yet.</p>
+                </div>
+        </section>
+
+        <section id="settings-section" class="hidden animate-in fade-in duration-500">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold flex items-center gap-2">
+                    <i class="fas fa-tools text-cyan-400"></i> Project Settings: <span id="setting-project-name" class="text-gray-400"></span>
+                </h2>
+                <button onclick="hideSettings()" class="text-sm text-gray-500 hover:text-white"><i class="fas fa-arrow-left"></i> Back to Dashboard</button>
+            </div>
+
+            <div class="settings-panel rounded-3xl p-8 space-y-8">
+                <div>
+                    <label class="block text-sm font-bold mb-3 uppercase tracking-widest text-gray-500">Edit Subdomain</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="subdomain-input" class="input-field flex-grow p-3 rounded-xl" placeholder="my-awesome-site">
+                        <div class="bg-gray-800 px-4 flex items-center rounded-xl text-gray-400">.browhost.vercel.app</div>
+                        <button onclick="updateSubdomain()" class="bg-cyan-600 hover:bg-cyan-500 px-6 rounded-xl font-bold transition-all text-black text-sm">Update</button>
+                    </div>
+                </div>
+
+                <div class="pt-8 border-t border-gray-800">
+                    <label class="block text-sm font-bold mb-3 uppercase tracking-widest text-gray-500">Custom Domain</label>
+                    <p class="text-xs text-gray-500 mb-4 italic">Point your A Record to <span class="text-cyan-400 font-mono">76.76.21.21</span> before adding.</p>
+                    <div class="flex gap-2">
+                        <input type="text" id="custom-domain-input" class="input-field flex-grow p-3 rounded-xl" placeholder="www.yourdomain.com">
+                        <button onclick="addCustomDomain()" class="bg-white text-black hover:bg-gray-200 px-6 rounded-xl font-bold transition-all text-sm">Add Domain</button>
+                    </div>
+                    <div id="custom-domain-list" class="mt-4 space-y-2">
+                        </div>
+                </div>
+
+                <div class="pt-8 border-t border-red-900/30">
+                    <h4 class="text-red-500 font-bold mb-2">Danger Zone</h4>
+                    <button onclick="deleteProject()" class="text-xs bg-red-600/10 text-red-500 border border-red-600/20 px-4 py-2 rounded-lg hover:bg-red-600 hover:text-white transition-all">
+                        Delete this project permanently
+                    </button>
                 </div>
             </div>
         </section>
 
-        <hr class="border-gray-900 mb-12">
-
-        <section>
+        <section id="import-section">
             <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
                 <i class="fab fa-github text-white"></i> Import Repositories
             </h2>
             <div id="repos-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="repo-card p-6 rounded-xl animate-pulse bg-gray-900/50 h-24"></div>
-                <div class="repo-card p-6 rounded-xl animate-pulse bg-gray-900/50 h-24"></div>
             </div>
         </section>
     </main>
-
-    <div id="settings-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/90">
-        <div class="glass-modal w-full max-w-md p-8 rounded-3xl shadow-2xl">
-            <div class="flex justify-between items-center mb-8">
-                <h3 class="text-2xl font-bold flex items-center gap-2">Settings</h3>
-                <button onclick="closeSettings()" class="text-gray-500 text-2xl">&times;</button>
-            </div>
-            <div class="space-y-6">
-                <div>
-                    <label class="block text-sm text-gray-400 mb-2">Edit Domain Path</label>
-                    <input type="text" id="edit-domain-input" class="w-full bg-black border border-gray-700 rounded-xl p-3 text-sm text-cyan-400 focus:border-cyan-500 outline-none">
-                </div>
-                <button onclick="saveDomain()" class="w-full bg-cyan-600 py-3 rounded-xl font-bold">Save Changes</button>
-                <button id="delete-btn" class="w-full bg-red-600/10 text-red-500 py-3 rounded-xl font-bold border border-red-900/30">Delete Project</button>
-            </div>
-        </div>
-    </div>
 
     <script>
         const API_BASE = "https://elitegamer859650-browhost.hf.space";
@@ -84,75 +97,49 @@
         async function init() {
             const urlParams = new URLSearchParams(window.location.search);
             const code = urlParams.get('code');
-
-            if (code) {
-                document.getElementById('username-display').innerText = "Authenticating...";
-                await exchangeCodeForToken(code);
-            } else if (githubToken) {
-                loadRepos(githubToken);
-                updateActiveList();
-            } else {
-                window.location.href = 'index.html';
-            }
+            if (code) { await exchangeCodeForToken(code); }
+            else if (githubToken) { loadRepos(githubToken); updateActiveList(); }
+            else { window.location.href = 'index.html'; }
         }
 
         async function exchangeCodeForToken(code) {
             try {
-                // Ghost bhai, URL encode karna zaroori hai
-                const response = await fetch(`${API_BASE}/auth/token?code=${encodeURIComponent(code)}`, { 
-                    method: 'POST',
-                    headers: { 'Accept': 'application/json' }
-                });
+                const response = await fetch(`${API_BASE}/auth/token?code=${encodeURIComponent(code)}`, { method: 'POST' });
                 const data = await response.json();
-                
                 if (data.access_token) {
                     githubToken = data.access_token;
                     localStorage.setItem('gh_token', githubToken);
                     window.history.replaceState({}, document.title, window.location.pathname);
                     loadRepos(githubToken);
-                } else {
-                    alert("GitHub Auth Error. Please login again.");
-                    window.location.href = 'index.html';
                 }
-            } catch (e) { 
-                console.error("Auth Error", e);
-                alert("Backend Connection Failed!");
-            }
+            } catch (e) { alert("Auth Failed!"); }
         }
 
         async function loadRepos(token) {
             try {
-                const res = await fetch('https://api.github.com/user/repos?sort=updated&per_page=50', {
+                const res = await fetch('https://api.github.com/user/repos?sort=updated', {
                     headers: { 'Authorization': `token ${token}` }
                 });
                 const repos = await res.json();
-                
-                if (repos.message === "Bad credentials") { logout(); return; }
-
                 document.getElementById('username-display').innerText = repos[0].owner.login;
-                
                 const container = document.getElementById('repos-list');
                 container.innerHTML = repos.map(repo => `
                     <div class="repo-card p-6 rounded-2xl flex justify-between items-center">
-                        <div class="overflow-hidden">
-                            <h4 class="font-bold truncate">${repo.name}</h4>
-                            <p class="text-[10px] text-gray-500 truncate">${repo.full_name}</p>
-                        </div>
-                        <button onclick="deployProject('${repo.name}')" class="bg-white text-black px-4 py-2 rounded-lg font-black text-[10px] hover:bg-cyan-400 transition-all shrink-0 ml-2">
-                            IMPORT
-                        </button>
+                        <div class="overflow-hidden"><h4 class="font-bold truncate">${repo.name}</h4></div>
+                        <button onclick="deployProject('${repo.name}')" class="bg-white text-black px-4 py-2 rounded-lg font-black text-[10px] hover:bg-cyan-400">IMPORT</button>
                     </div>
                 `).join('');
-            } catch (e) { console.error("Repo Load Error", e); }
+            } catch (e) { console.error(e); }
         }
 
         function deployProject(repoName) {
             const project = { 
                 id: Date.now(), 
                 name: repoName, 
-                domain: `browhost.vercel.app/${repoName.toLowerCase()}` 
+                subdomain: repoName.toLowerCase(),
+                customDomain: null
             };
-            deployedProjects.unshift(project); // New project top par aaye
+            deployedProjects.unshift(project);
             saveToStorage();
             updateActiveList();
         }
@@ -160,67 +147,94 @@
         function updateActiveList() {
             const list = document.getElementById('active-list');
             document.getElementById('project-count').innerText = deployedProjects.length;
-
             if(deployedProjects.length === 0) {
-                list.innerHTML = `<div class="col-span-full py-10 border-2 border-dashed border-gray-800 rounded-2xl text-center"><p class="text-gray-600 italic">No projects deployed yet.</p></div>`;
+                list.innerHTML = `<div class="col-span-full py-10 border-2 border-dashed border-gray-800 rounded-2xl text-center"><p class="text-gray-600 italic">No projects yet.</p></div>`;
                 return;
             }
-
             list.innerHTML = deployedProjects.map(p => `
-                <div class="bg-[#0a0a0a] border border-cyan-500/20 p-5 rounded-2xl flex justify-between items-center">
-                    <div class="overflow-hidden">
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                            <h4 class="font-bold text-white truncate text-sm">${p.name}</h4>
-                        </div>
-                        <a href="https://${p.domain}" target="_blank" class="text-[10px] text-gray-500 hover:text-cyan-400 underline truncate block">${p.domain}</a>
+                <div class="bg-[#0a0a0a] border border-gray-800 p-5 rounded-2xl flex justify-between items-center hover:border-cyan-500/50 transition-all">
+                    <div>
+                        <h4 class="font-bold text-white text-sm">${p.name}</h4>
+                        <a href="https://${p.subdomain}.browhost.vercel.app" target="_blank" class="text-[10px] text-gray-500 hover:text-cyan-400 underline italic">${p.subdomain}.browhost.vercel.app</a>
                     </div>
-                    <button onclick="openSettings(${p.id})" class="bg-gray-900 p-2 rounded-lg hover:bg-gray-800 ml-2">
+                    <button onclick="showSettings(${p.id})" class="bg-gray-900 p-2 rounded-lg hover:bg-gray-800">
                         <i class="fas fa-cog text-gray-400"></i>
                     </button>
                 </div>
             `).join('');
         }
 
-        function saveToStorage() {
-            localStorage.setItem('browhost_projects', JSON.stringify(deployedProjects));
-        }
-
-        function logout() {
-            localStorage.clear();
-            window.location.href = 'index.html';
-        }
-
-        // UI Helpers
-        function openSettings(id) {
+        // --- NEW SETTINGS PAGE LOGIC ---
+        function showSettings(id) {
             currentEditingId = id;
             const project = deployedProjects.find(p => p.id === id);
-            document.getElementById('edit-domain-input').value = project.domain;
-            document.getElementById('settings-modal').classList.remove('hidden');
-            document.getElementById('delete-btn').onclick = () => deleteProject(id);
+            
+            document.getElementById('projects-section').classList.add('hidden');
+            document.getElementById('import-section').classList.add('hidden');
+            document.getElementById('settings-section').classList.remove('hidden');
+            
+            document.getElementById('setting-project-name').innerText = project.name;
+            document.getElementById('subdomain-input').value = project.subdomain;
+            renderCustomDomains(project);
+            window.scrollTo(0,0);
         }
 
-        function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
-
-        function deleteProject(id) {
-            if(confirm("Ghost bhai, delete kar dein?")) {
-                deployedProjects = deployedProjects.filter(p => p.id !== id);
-                saveToStorage();
-                updateActiveList();
-                closeSettings();
-            }
+        function hideSettings() {
+            document.getElementById('settings-section').classList.add('hidden');
+            document.getElementById('projects-section').classList.remove('hidden');
+            document.getElementById('import-section').classList.remove('hidden');
         }
 
-        function saveDomain() {
-            const newDomain = document.getElementById('edit-domain-input').value;
+        function updateSubdomain() {
+            const newSub = document.getElementById('subdomain-input').value.toLowerCase().replace(/\s+/g, '-');
             const project = deployedProjects.find(p => p.id === currentEditingId);
-            if(project) {
-                project.domain = newDomain;
-                saveToStorage();
-                updateActiveList();
-                closeSettings();
+            project.subdomain = newSub;
+            saveToStorage();
+            updateActiveList();
+            alert("Subdomain updated!");
+        }
+
+        function addCustomDomain() {
+            const domain = document.getElementById('custom-domain-input').value.trim();
+            if(!domain) return;
+            const project = deployedProjects.find(p => p.id === currentEditingId);
+            project.customDomain = domain;
+            saveToStorage();
+            renderCustomDomains(project);
+            document.getElementById('custom-domain-input').value = "";
+        }
+
+        function renderCustomDomains(project) {
+            const list = document.getElementById('custom-domain-list');
+            if(project.customDomain) {
+                list.innerHTML = `
+                    <div class="bg-black/50 border border-green-900/30 p-3 rounded-xl flex justify-between items-center">
+                        <span class="text-sm font-mono text-green-400">${project.customDomain}</span>
+                        <button onclick="removeCustomDomain()" class="text-red-500 text-xs hover:underline">Remove</button>
+                    </div>`;
+            } else {
+                list.innerHTML = `<p class="text-[10px] text-gray-600 italic">No custom domain linked.</p>`;
             }
         }
+
+        function removeCustomDomain() {
+            const project = deployedProjects.find(p => p.id === currentEditingId);
+            project.customDomain = null;
+            saveToStorage();
+            renderCustomDomains(project);
+        }
+
+        function deleteProject() {
+            if(confirm("Ghost bhai, kya waqai is project ko delete karna hai?")) {
+                deployedProjects = deployedProjects.filter(p => p.id !== currentEditingId);
+                saveToStorage();
+                updateActiveList();
+                hideSettings();
+            }
+        }
+
+        function saveToStorage() { localStorage.setItem('browhost_projects', JSON.stringify(deployedProjects)); }
+        function logout() { localStorage.clear(); window.location.href = 'index.html'; }
 
         init();
     </script>
