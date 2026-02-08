@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard | BrowHost</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body { background-color: #050505; color: #eee; font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
@@ -12,9 +13,10 @@
         .repo-card:hover { border-color: #00d2ff; }
         .neon-text { color: #00d2ff; text-shadow: 0 0 10px rgba(0, 210, 255, 0.3); }
         .input-field { background: #000; border: 1px solid #333; color: #fff; outline: none; transition: 0.2s; padding: 12px; width: 100%; border-radius: 12px; }
-        .input-field:focus { border-color: #00d2ff; }
         .btn-glow { background: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%); transition: 0.3s; box-shadow: 0 0 15px rgba(0, 210, 255, 0.2); }
         .btn-glow:hover { transform: translateY(-2px); box-shadow: 0 0 25px rgba(0, 210, 255, 0.4); }
+        .drop-zone { border: 2px dashed #333; transition: 0.3s; }
+        .drop-zone:hover { border-color: #00d2ff; background: rgba(0, 210, 255, 0.05); }
     </style>
 </head>
 <body>
@@ -25,7 +27,7 @@
         </h1>
         <div id="user-info" class="flex items-center gap-3 text-sm">
             <img id="user-pic" src="" class="w-8 h-8 rounded-full border border-cyan-500 hidden">
-            <span id="username-display" class="text-gray-300 font-mono">Verifying...</span>
+            <span id="username-display" class="text-gray-300 font-mono text-xs italic">Verifying...</span>
             <button onclick="logout()" class="ml-4 text-red-500 text-xs hover:underline">Logout</button>
         </div>
     </nav>
@@ -35,43 +37,48 @@
         <section id="projects-section">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-xl font-bold flex items-center gap-2">
-                    <i class="fas fa-server text-green-500"></i> My Live Sites
+                    <i class="fas fa-server text-green-500"></i> My Deployments
                     <span id="project-count" class="bg-gray-800 text-xs px-2 py-1 rounded-full text-gray-400 ml-2">0</span>
                 </h2>
-                <div class="flex items-center gap-2 text-[10px] text-gray-500 uppercase font-bold">
-                    Engine Status: <span class="w-2 h-2 rounded-full bg-yellow-500" id="engine-status"></span>
+                <div class="flex items-center gap-2 text-[10px] text-gray-500 uppercase font-bold tracking-widest">
+                    Engine: <span class="w-2 h-2 rounded-full bg-yellow-500" id="engine-status"></span>
                 </div>
             </div>
             <div id="active-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         </section>
 
-        <section id="upload-section" class="settings-panel p-8 rounded-3xl border-2 border-dashed border-gray-800 text-center">
+        <section id="upload-section" class="settings-panel p-10 rounded-3xl drop-zone text-center">
             <div class="mb-6">
-                <i class="fas fa-cloud-upload-alt text-5xl text-cyan-400 mb-4"></i>
-                <h3 class="text-2xl font-bold">Host New Project</h3>
-                <p class="text-gray-500 text-sm">Upload your <b>index.html</b> to go live instantly</p>
+                <i class="fas fa-folder-plus text-5xl text-cyan-400 mb-4"></i>
+                <h3 class="text-2xl font-bold">Deploy New Folder</h3>
+                <p class="text-gray-500 text-sm italic">Include a <b>browhost.json</b> for custom settings</p>
             </div>
             
-            <div class="max-w-md mx-auto space-y-4">
-                <input type="text" id="direct-project-name" class="input-field" placeholder="Project Name (e.g. My Portfolio)">
-                <input type="file" id="direct-file" accept=".html" class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-cyan-600 file:text-white hover:file:bg-cyan-700 cursor-pointer">
-                <button onclick="handleDirectUpload()" id="upload-btn" class="btn-glow w-full py-3 rounded-xl font-bold text-black mt-4 transition-all uppercase tracking-widest">
-                    Launch Site
+            <div class="max-w-md mx-auto space-y-4 text-left">
+                <label class="block text-xs text-gray-500 uppercase ml-1">Project Name</label>
+                <input type="text" id="project-name" class="input-field" placeholder="my-awesome-app">
+                
+                <label class="block text-xs text-gray-500 uppercase ml-1">Select Folder</label>
+                <input type="file" id="folder-input" webkitdirectory mozdirectory directory multiple class="block w-full text-xs text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-gray-800 file:text-cyan-400 hover:file:bg-gray-700 cursor-pointer">
+                
+                <button onclick="handleDeploy()" id="upload-btn" class="btn-glow w-full py-4 rounded-xl font-bold text-black mt-4 transition-all uppercase tracking-widest">
+                    Deploy to BrowHost
                 </button>
+                <div id="progress" class="text-center text-xs text-cyan-500 hidden animate-pulse">Zipping Files... Please wait...</div>
             </div>
         </section>
 
         <section id="settings-section" class="hidden">
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-xl font-bold flex items-center gap-2 text-cyan-400">
-                    <i class="fas fa-tools"></i> Project Settings
+                    <i class="fas fa-cog"></i> Configuration
                 </h2>
-                <button onclick="hideSettings()" class="text-sm text-gray-500 hover:text-white">Back</button>
+                <button onclick="hideSettings()" class="text-sm text-gray-500 hover:text-white underline">Close</button>
             </div>
-            <div class="settings-panel rounded-3xl p-8 space-y-6 text-center">
-                <p class="text-sm text-gray-500">Live URL:</p>
-                <div id="subdomain-display" class="bg-black p-4 rounded-xl text-cyan-400 font-mono text-lg break-all"></div>
-                <button onclick="deleteProject()" class="text-xs bg-red-600/10 text-red-500 border border-red-900/30 px-6 py-3 rounded-xl hover:bg-red-600 hover:text-white transition-all">Delete Site</button>
+            <div class="settings-panel rounded-3xl p-10 text-center space-y-6">
+                <p class="text-xs text-gray-500 uppercase tracking-widest">Deployed URL</p>
+                <div id="subdomain-display" class="bg-black p-5 rounded-2xl text-cyan-400 font-mono text-sm break-all border border-gray-800"></div>
+                <button onclick="deleteProject()" class="text-xs bg-red-600/10 text-red-500 border border-red-900/20 px-10 py-3 rounded-xl hover:bg-red-600 hover:text-white transition-all font-bold">Destroy Project</button>
             </div>
         </section>
     </main>
@@ -82,22 +89,11 @@
         let currentEditingId = null;
 
         function init() {
-            // Check Google User Info from Firebase
             const userName = localStorage.getItem('bh_user_name');
             const userPic = localStorage.getItem('bh_user_pic');
-            
-            if (!userName) {
-                window.location.href = 'index.html';
-                return;
-            }
-
+            if (!userName) { window.location.href = 'index.html'; return; }
             document.getElementById('username-display').innerText = userName;
-            if (userPic) {
-                const picEl = document.getElementById('user-pic');
-                picEl.src = userPic;
-                picEl.classList.remove('hidden');
-            }
-
+            if (userPic) { const picEl = document.getElementById('user-pic'); picEl.src = userPic; picEl.classList.remove('hidden'); }
             checkEngine();
             updateActiveList();
         }
@@ -105,76 +101,76 @@
         async function checkEngine() {
             try {
                 const res = await fetch(API_BASE + "/");
-                if(res.ok) document.getElementById('engine-status').className = "w-2 h-2 rounded-full bg-green-500";
-            } catch(e) {
-                document.getElementById('engine-status').className = "w-2 h-2 rounded-full bg-red-500";
-            }
+                if(res.ok) document.getElementById('engine-status').className = "w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_#22c55e]";
+            } catch(e) { document.getElementById('engine-status').className = "w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444]"; }
         }
 
-        // --- DIRECT FILE UPLOAD LOGIC ---
-        async function handleDirectUpload() {
-            const fileInput = document.getElementById('direct-file');
-            const projectName = document.getElementById('direct-project-name').value.trim();
+        async function handleDeploy() {
+            const folderInput = document.getElementById('folder-input');
+            const projectName = document.getElementById('project-name').value.trim().toLowerCase().replace(/\s+/g, '-');
             const btn = document.getElementById('upload-btn');
+            const progress = document.getElementById('progress');
 
-            if (!fileInput.files[0] || !projectName) {
-                alert("Bhai, Project Name aur index.html file dono chahiye!");
+            if (!folderInput.files.length || !projectName) {
+                alert("Bhai, Name aur Folder dono chahiye!");
                 return;
             }
 
-            btn.innerText = "UPLOADING...";
             btn.disabled = true;
+            progress.classList.remove('hidden');
+
+            const zip = new JSZip();
+            const files = folderInput.files;
+
+            // Browser mein hi ZIP banana
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const path = file.webkitRelativePath.split('/').slice(1).join('/'); 
+                zip.file(path, file);
+            }
+
+            const zipBlob = await zip.generateAsync({ type: "blob" });
+            progress.innerText = "Uploading Zip to Engine...";
 
             const formData = new FormData();
-            formData.append('file', fileInput.files[0]);
+            formData.append('file', zipBlob, 'bundle.zip');
             formData.append('project_name', projectName);
 
             try {
-                const res = await fetch(`${API_BASE}/upload-direct`, {
+                const res = await fetch(`${API_BASE}/deploy-folder`, {
                     method: 'POST',
                     body: formData
                 });
                 const data = await res.json();
 
                 if (data.status === "success") {
-                    const project = { 
-                        id: Date.now(), 
-                        name: projectName, 
-                        subdomain: data.deploy_id 
-                    };
-                    deployedProjects.unshift(project);
+                    deployedProjects.unshift({ id: Date.now(), name: projectName, subdomain: data.deploy_id });
                     saveToStorage();
                     updateActiveList();
-                    alert("Site is LIVE!");
-                    document.getElementById('direct-project-name').value = "";
-                    fileInput.value = "";
-                } else {
-                    alert("Error: " + data.error);
-                }
-            } catch (e) {
-                alert("Engine se connection nahi ho raha!");
-            } finally {
-                btn.innerText = "LAUNCH SITE";
-                btn.disabled = false;
+                    alert("Deployment Successful! Folder is Live.");
+                } else { alert("Error: " + data.error); }
+            } catch (e) { alert("Engine connection failed!"); }
+            finally { 
+                btn.disabled = false; 
+                progress.classList.add('hidden');
+                progress.innerText = "Zipping Files... Please wait...";
             }
         }
 
         function updateActiveList() {
             const list = document.getElementById('active-list');
             document.getElementById('project-count').innerText = deployedProjects.length;
-            if(deployedProjects.length === 0) {
-                list.innerHTML = `<div class="col-span-full py-16 border-2 border-dashed border-gray-800 rounded-3xl text-center"><p class="text-gray-600 italic">No deployments found.</p></div>`;
+            if(!deployedProjects.length) {
+                list.innerHTML = `<div class="col-span-full py-16 border-2 border-dashed border-gray-800 rounded-3xl text-center text-gray-600 italic">No live projects yet.</div>`;
                 return;
             }
             list.innerHTML = deployedProjects.map(p => `
-                <div class="bg-[#0a0a0a] border border-gray-800 p-6 rounded-2xl flex justify-between items-center group">
+                <div class="bg-[#0a0a0a] border border-gray-800 p-6 rounded-2xl flex justify-between items-center group hover:border-cyan-500/30 transition-all">
                     <div>
-                        <h4 class="font-bold text-white text-sm">${p.name}</h4>
-                        <a href="https://browhost.vercel.app/view/${p.subdomain}" target="_blank" class="text-[10px] text-gray-500 group-hover:text-cyan-400 underline italic">browhost.vercel.app/view/${p.subdomain}</a>
+                        <h4 class="font-bold text-white text-sm mb-1 uppercase tracking-tighter">${p.name}</h4>
+                        <a href="https://browhost.vercel.app/view/${p.subdomain}/index.html" target="_blank" class="text-[10px] text-gray-500 group-hover:text-cyan-400 underline italic">browhost.vercel.app/view/${p.subdomain}</a>
                     </div>
-                    <button onclick="showSettings(${p.id})" class="bg-gray-900 p-3 rounded-xl hover:bg-gray-800 text-gray-500 hover:text-white">
-                        <i class="fas fa-cog"></i>
-                    </button>
+                    <button onclick="showSettings(${p.id})" class="bg-gray-900 p-3 rounded-xl hover:bg-gray-800 text-gray-500 hover:text-white"><i class="fas fa-cog"></i></button>
                 </div>
             `).join('');
         }
@@ -185,7 +181,7 @@
             document.getElementById('projects-section').classList.add('hidden');
             document.getElementById('upload-section').classList.add('hidden');
             document.getElementById('settings-section').classList.remove('hidden');
-            document.getElementById('subdomain-display').innerText = `browhost.vercel.app/view/${project.subdomain}`;
+            document.getElementById('subdomain-display').innerText = `https://browhost.vercel.app/view/${project.subdomain}/index.html`;
         }
 
         function hideSettings() {
@@ -195,7 +191,7 @@
         }
 
         function deleteProject() {
-            if(confirm("Bhai, kya aap is site ko delete karna chahte hain?")) {
+            if(confirm("Destroy this deployment?")) {
                 deployedProjects = deployedProjects.filter(p => p.id !== currentEditingId);
                 saveToStorage();
                 updateActiveList();
