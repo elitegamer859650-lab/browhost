@@ -1,9 +1,10 @@
 {
+  "version": 2,
   "cleanUrls": true,
   "rewrites": [
     {
-      "source": "/:path*",
-      "destination": "https://elitegamer859650-browhost.hf.space/proxy?path=:path*"
+      "source": "/view/:project",
+      "destination": "https://elitegamer859650-browhost.hf.space/view/:project"
     }
   ]
 }
