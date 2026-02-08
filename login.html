@@ -7,28 +7,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body {
-            background-color: #0a0a0a;
-            color: #ffffff;
-            font-family: 'Inter', sans-serif;
-        }
-        .neon-border {
-            border: 1px solid #00d2ff;
-            box-shadow: 0 0 15px rgba(0, 210, 255, 0.3);
-        }
-        .btn-neon {
-            background: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%);
-            transition: all 0.3s ease;
-        }
-        .btn-neon:hover {
-            box-shadow: 0 0 25px rgba(0, 210, 255, 0.6);
-            transform: translateY(-2px);
-        }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
+        body { background-color: #0a0a0a; color: #ffffff; font-family: 'Inter', sans-serif; }
+        .neon-border { border: 1px solid #00d2ff; box-shadow: 0 0 15px rgba(0, 210, 255, 0.3); }
+        .btn-neon { background: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%); transition: 0.3s; }
+        .btn-neon:hover { box-shadow: 0 0 25px rgba(0, 210, 255, 0.6); transform: translateY(-2px); }
+        .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen">
@@ -38,40 +21,37 @@
             <h1 class="text-4xl font-black tracking-tighter italic">
                 BROW<span class="text-cyan-400">HOST</span>
             </h1>
-            <p class="text-gray-400 text-sm mt-2 font-mono">The Next-Gen Hosting Engine</p>
+            <p class="text-gray-400 text-sm mt-2 font-mono">Storage Powered by Backblaze B2</p>
         </div>
 
         <h2 class="text-xl font-semibold mb-8">Login to your Dashboard</h2>
 
-        <button onclick="loginWithGitHub()" class="btn-neon w-full py-4 rounded-lg font-bold flex items-center justify-center gap-3 text-white">
+        <button onclick="loginWithGitHub()" class="btn-neon w-full py-4 rounded-lg font-bold flex items-center justify-center gap-3 text-white shadow-lg">
             <i class="fab fa-github text-2xl"></i>
             Continue with GitHub
         </button>
 
+        <div id="status-msg" class="mt-4 text-xs text-cyan-500 hidden italic">Connecting to Engine...</div>
+
         <p class="mt-8 text-xs text-gray-500">
             By logging in, you agree to BrowHost's <br>
-            <a href="#" class="underline hover:text-cyan-400">Terms of Service</a> and <a href="#" class="underline hover:text-cyan-400">Privacy Policy</a>
+            <a href="#" class="underline hover:text-cyan-400">Terms of Service</a>
         </p>
-
-        <div class="mt-6 pt-6 border-t border-gray-800">
-            <p class="text-sm text-gray-400 italic">"Your domain, your rules."</p>
-        </div>
     </div>
 
     <script>
     function loginWithGitHub() {
         const clientId = "Ov23libthJgOPM6nwfmD";
-        
-        // Ye aapka GitHub Pages wala link hona chahiye
-        const redirectUri = "https://browhost.vercel.app/deploy.html"; 
-        
+        // Ghost bhai, redirect hamesha vahi hona chahiye jo GitHub App settings mein hai
+        const redirectUri = window.location.origin + "/deploy.html"; 
         const scope = "repo user"; 
 
-        const authUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}`;
+        document.getElementById('status-msg').classList.remove('hidden');
+
+        const authUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}&state=${Math.random().toString(36).substring(7)}`;
         
         window.location.href = authUrl;
     }
-</script>
-
+    </script>
 </body>
 </html>
