@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard | BrowHost</title>
+    <title>Dashboard | BrowHost Engine</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -12,9 +12,9 @@
         .card { background: white; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
         .btn-blue { background: #2563eb; color: white; padding: 12px 24px; border-radius: 12px; font-weight: bold; transition: 0.3s; }
         .btn-blue:hover { background: #1d4ed8; transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3); }
-        .input-box { border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; width: 100%; outline: none; transition: 0.2s; }
-        .input-box:focus { border-color: #2563eb; ring: 2px solid #2563eb; }
-        .hidden { display: none; }
+        .input-box { border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; width: 100%; outline: none; transition: 0.2s; font-size: 14px; }
+        .input-box:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body class="pb-20">
@@ -24,61 +24,49 @@
             <h1 class="text-2xl font-black text-blue-600 italic tracking-tighter">BROWHOST</h1>
             <div class="flex items-center gap-4">
                 <div class="text-right">
-                    <p id="user-name" class="font-bold text-sm leading-none">Loading...</p>
-                    <span class="text-[10px] text-gray-400 font-bold uppercase">Active Session</span>
+                    <p id="user-name" class="font-bold text-sm leading-none">Verifying Account...</p>
+                    <span id="engine-check" class="text-[9px] text-gray-400 font-bold uppercase tracking-widest">Checking Engine...</span>
                 </div>
                 <img id="user-pic" class="w-10 h-10 rounded-full border-2 border-white shadow-sm">
-                <button onclick="logout()" class="text-gray-400 hover:text-red-600 transition-colors"><i class="fas fa-sign-out-alt"></i></button>
+                <button onclick="logout()" class="text-gray-400 hover:text-red-600"><i class="fas fa-sign-out-alt"></i></button>
             </div>
         </div>
     </nav>
 
     <main class="max-w-6xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-12 gap-10">
-        
         <div class="lg:col-span-5 space-y-6">
-            <div class="card p-10 text-center border-dashed border-2 border-blue-100 hover:border-blue-400 transition-all cursor-pointer" onclick="document.getElementById('folder-input').click()">
-                <div class="w-20 h-20 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-folder-open text-3xl"></i>
+            <div class="card p-10 text-center border-dashed border-2 border-blue-200 hover:border-blue-500 transition-all cursor-pointer" onclick="document.getElementById('folder-input').click()">
+                <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-folder-plus text-2xl"></i>
                 </div>
-                <h3 class="text-lg font-bold">Select Your Project</h3>
-                <p class="text-gray-500 text-sm">Pick a folder to host it instantly.</p>
+                <h3 class="font-bold">Select Project Folder</h3>
+                <p class="text-gray-400 text-xs">Drop your site folder here</p>
                 <input type="file" id="folder-input" webkitdirectory directory multiple class="hidden" onchange="handleFileSelection(this)">
             </div>
 
-            <div id="deploy-form" class="card p-8 space-y-6 border-blue-500 bg-white hidden animate-in fade-in duration-500">
-                <h3 class="font-bold text-blue-600 border-b pb-2 uppercase text-xs tracking-widest">Deployment Settings</h3>
+            <div id="deploy-form" class="card p-8 space-y-6 hidden border-blue-500 shadow-xl">
+                <h3 class="font-black text-blue-600 border-b pb-2 uppercase text-[10px] tracking-[0.2em]">Deployment Config</h3>
                 <div class="space-y-4">
-                    <div>
-                        <label class="text-[10px] font-bold text-gray-400 uppercase ml-1">Domain Name</label>
-                        <input type="text" id="p-name" class="input-box" placeholder="my-website-name">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-bold text-gray-400 uppercase ml-1">Main File (Default: index.html)</label>
-                        <input type="text" id="p-entry" class="input-box" value="index.html">
-                    </div>
+                    <input type="text" id="p-name" class="input-box" placeholder="Project ID (e.g. my-site)">
+                    <input type="text" id="p-entry" class="input-box" value="index.html">
                 </div>
-                <button onclick="runDeployment()" id="run-btn" class="btn-blue w-full flex items-center justify-center gap-2">
-                    <span>Deploy Now</span>
-                    <i class="fas fa-paper-plane text-xs"></i>
+                <button onclick="runDeployment()" id="run-btn" class="btn-blue w-full flex items-center justify-center gap-3">
+                    <span>LAUNCH SITE</span>
+                    <i class="fas fa-rocket text-xs"></i>
                 </button>
-                <p id="status" class="text-center text-xs text-blue-600 font-bold hidden animate-pulse uppercase tracking-widest">
-                    <i class="fas fa-spinner fa-spin mr-1"></i> Syncing Assets...
-                </p>
+                <div id="status" class="hidden text-center text-xs text-blue-500 font-bold animate-pulse">
+                    <i class="fas fa-sync fa-spin mr-2"></i> PUSHING TO BROWHOST CLOUD...
+                </div>
             </div>
         </div>
 
         <div class="lg:col-span-7 space-y-6">
-            <div class="flex justify-between items-center px-2">
-                <h2 class="text-xl font-bold flex items-center gap-2">
-                    <i class="fas fa-satellite-dish text-blue-600"></i> Your Live Sites
-                </h2>
-                <span id="project-count" class="bg-blue-600 text-white px-3 py-1 rounded-full text-[10px] font-black italic">0</span>
-            </div>
-            
-            <div id="active-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 overflow-y-auto max-h-[70vh] pr-2">
-                </div>
+            <h2 class="text-xl font-bold flex justify-between items-center px-2">
+                <span><i class="fas fa-server text-blue-600 mr-2"></i> Live Deployments</span>
+                <span id="project-count" class="bg-gray-100 px-3 py-1 rounded-full text-xs font-black">0</span>
+            </h2>
+            <div id="active-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         </div>
-
     </main>
 
     <script type="module">
@@ -96,32 +84,32 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const API_BASE = "https://elitegamer859650-browhost.hf.space";
+        const API_BASE = "https://elitegamer859650-browhost.hf.space"; 
         let userKey = "";
 
+        // UI SYNC
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 document.getElementById('user-name').innerText = user.displayName;
                 document.getElementById('user-pic').src = user.photoURL;
-                userKey = "projects_" + btoa(user.email);
+                userKey = "bh_sites_" + btoa(user.email);
+                checkEngine();
                 loadProjects();
             } else { window.location.href = 'index.html'; }
         });
 
-        // --- FIXED UI LOGIC ---
+        async function checkEngine() {
+            try {
+                const res = await fetch(API_BASE + "/");
+                if(res.ok) document.getElementById('engine-check').innerText = "Engine Status: Ready";
+            } catch(e) { document.getElementById('engine-check').innerText = "Engine Status: Connection Pending"; }
+        }
+
         window.handleFileSelection = (input) => {
-            const files = input.files;
-            if (files.length) {
-                // Settings Form dikhao
-                const form = document.getElementById('deploy-form');
-                form.classList.remove('hidden');
-                
-                // Folder ke naam se domain suggest karo
-                const folderName = files[0].webkitRelativePath.split('/')[0];
-                document.getElementById('p-name').value = folderName.toLowerCase().replace(/\s+/g, '-');
-                
-                // Form par scroll karo (Mobile ke liye)
-                form.scrollIntoView({ behavior: 'smooth' });
+            if (input.files.length) {
+                document.getElementById('deploy-form').classList.remove('hidden');
+                const folderName = input.files[0].webkitRelativePath.split('/')[0];
+                document.getElementById('p-name').value = folderName.toLowerCase().replace(/[^a-z0-9]/g, '-');
             }
         };
 
@@ -131,7 +119,7 @@
             const btn = document.getElementById('run-btn');
             const status = document.getElementById('status');
 
-            if (!files.length || !name) return alert("Bhai, Domain Name lazmi hai!");
+            if (!files.length || !name) return alert("Select folder & name first!");
 
             btn.disabled = true;
             status.classList.remove('hidden');
@@ -147,23 +135,31 @@
                 fd.append('file', zipBlob, 'site.zip');
                 fd.append('project_name', name);
 
-                const res = await fetch(`${API_BASE}/deploy-folder`, { method: 'POST', body: fd, mode: 'cors' });
-                const data = await res.json();
+                // DIRECT TUNNELING FETCH
+                const res = await fetch(`${API_BASE}/deploy-folder`, { 
+                    method: 'POST', 
+                    body: fd,
+                    mode: 'cors'
+                });
 
+                if (!res.ok) throw new Error("Server rejected the request");
+
+                const data = await res.json();
                 if (data.status === "success") {
-                    let projects = JSON.parse(localStorage.getItem(userKey)) || [];
-                    projects.unshift({
+                    let sites = JSON.parse(localStorage.getItem(userKey)) || [];
+                    sites.unshift({
                         name: name,
                         id: data.deploy_id,
                         entry: document.getElementById('p-entry').value,
                         time: new Date().toLocaleDateString()
                     });
-                    localStorage.setItem(userKey, JSON.stringify(projects));
-                    alert("DEPLOYED! Your site is now live.");
+                    localStorage.setItem(userKey, JSON.stringify(sites));
+                    alert("DEPLOYED! Site is live.");
                     location.reload();
-                } else { alert("Server Error: " + (data.details || "Check Backblaze Keys")); }
-            } catch (e) { 
-                alert("Connection Failed. Make sure your Space is Public & Running."); 
+                } else { throw new Error(data.details || "Upload Failed"); }
+            } catch (e) {
+                console.error(e);
+                alert("DEPLOY ERROR: Could not talk to Hugging Face Space.\n\nMake sure your Space is PUBLIC and RUNNING.");
             } finally {
                 btn.disabled = false;
                 status.classList.add('hidden');
@@ -172,27 +168,27 @@
 
         function loadProjects() {
             const list = document.getElementById('active-list');
-            const projects = JSON.parse(localStorage.getItem(userKey)) || [];
-            document.getElementById('project-count').innerText = projects.length;
+            const sites = JSON.parse(localStorage.getItem(userKey)) || [];
+            document.getElementById('project-count').innerText = sites.length;
 
-            list.innerHTML = projects.length ? projects.map(p => `
-                <div class="card p-5 hover:border-blue-500 transition-all flex flex-col justify-between h-40 group">
+            list.innerHTML = sites.length ? sites.map(p => `
+                <div class="card p-5 hover:border-blue-400 transition-all flex flex-col justify-between h-40">
                     <div>
-                        <h4 class="font-black text-sm uppercase tracking-tighter">${p.name}</h4>
+                        <h4 class="font-black text-xs uppercase tracking-widest truncate text-blue-600">${p.name}</h4>
                         <p class="text-[9px] text-gray-400 font-bold">${p.time}</p>
                     </div>
                     <div class="space-y-2">
-                        <a href="${API_BASE}/view/${p.id}/${p.entry}" target="_blank" class="block text-center bg-blue-50 text-blue-600 py-2 rounded-lg text-[10px] font-black uppercase hover:bg-blue-600 hover:text-white transition-all">Visit Website</a>
-                        <button onclick="copyLink('${p.id}', '${p.entry}')" class="w-full text-[9px] text-gray-400 hover:text-blue-500 font-bold">Copy Endpoint</button>
+                        <a href="${API_BASE}/view/${p.id}/${p.entry}" target="_blank" class="block text-center bg-blue-600 text-white py-2 rounded-xl text-[10px] font-black uppercase shadow-lg shadow-blue-500/20">VIEW LIVE</a>
+                        <button onclick="copyURL('${p.id}', '${p.entry}')" class="w-full text-[9px] text-gray-400 hover:text-blue-500 font-bold italic">Copy Endpoint URL</button>
                     </div>
                 </div>
-            `).join('') : `<div class="col-span-full py-10 text-center text-gray-400 italic text-sm border-2 border-dashed rounded-3xl">Your deployments will appear here...</div>`;
+            `).join('') : `<div class="col-span-full py-10 text-center text-gray-300 italic text-sm">Waiting for first deployment...</div>`;
         }
 
-        window.copyLink = (id, entry) => {
+        window.copyURL = (id, entry) => {
             const url = `${API_BASE}/view/${id}/${entry}`;
             navigator.clipboard.writeText(url);
-            alert("Link Copied!");
+            alert("Copied to clipboard!");
         };
 
         window.logout = () => signOut(auth).then(() => { localStorage.clear(); window.location.href = 'index.html'; });
