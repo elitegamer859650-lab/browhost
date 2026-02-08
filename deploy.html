@@ -3,71 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Dashboard | BrowHost</title>
+    <title>Dashboard | BrowHost</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background-color: #f9fafb; color: #111827; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .card { background: white; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .btn-primary { background-color: #2563eb; color: white; transition: 0.2s; }
-        .btn-primary:hover { background-color: #1d4ed8; }
-        .loader { border-top-color: #2563eb; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        body { background-color: #f9fafb; color: #111827; font-family: 'Segoe UI', sans-serif; }
+        .card { background: white; border: 1px solid #e5e7eb; border-radius: 12px; }
+        .btn-blue { background-color: #2563eb; color: white; font-weight: bold; padding: 12px; border-radius: 8px; transition: 0.3s; }
+        .btn-blue:hover { background-color: #1d4ed8; }
     </style>
 </head>
 <body class="bg-gray-50">
 
     <nav class="bg-white border-b border-gray-200 py-4 px-8 flex justify-between items-center sticky top-0 z-50">
         <h1 class="text-xl font-bold text-blue-600">BrowHost</h1>
-        <div class="flex items-center gap-4">
+        <div id="user-info" class="flex items-center gap-3">
             <div class="text-right">
-                <p id="username-display" class="font-semibold text-sm text-gray-800">Loading user...</p>
-                <p id="user-plan-badge" class="text-[10px] text-gray-500 font-bold uppercase">Free Plan</p>
+                <p id="display-name" class="font-bold text-sm">Loading...</p>
+                <p class="text-[10px] text-gray-400 uppercase font-black">Verified User</p>
             </div>
-            <img id="user-pic" class="w-10 h-10 rounded-full border border-gray-200">
-            <button onclick="logout()" class="text-gray-400 hover:text-red-600 transition-colors"><i class="fas fa-sign-out-alt"></i></button>
+            <img id="display-pic" class="w-10 h-10 rounded-full border">
+            <button onclick="logout()" class="text-gray-400 hover:text-red-600 ml-2"><i class="fas fa-sign-out-alt"></i></button>
         </div>
     </nav>
 
     <main class="max-w-5xl mx-auto p-6 space-y-8">
         
         <div class="flex justify-between items-center">
-            <h2 class="text-2xl font-bold text-gray-800">Your Projects</h2>
-            <div class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">
-                Total: <span id="project-count">0</span>
+            <h2 class="text-2xl font-bold">Your Live Projects</h2>
+            <div class="bg-blue-100 text-blue-700 px-4 py-1 rounded-full text-xs font-bold">
+                Count: <span id="project-count">0</span>
             </div>
         </div>
 
         <div id="active-list" class="grid grid-cols-1 md:grid-cols-3 gap-6">
             </div>
 
-        <div class="card p-8 text-center space-y-4">
-            <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto">
-                <i class="fas fa-plus text-2xl"></i>
-            </div>
-            <div>
-                <h3 class="text-lg font-bold">Deploy a New Site</h3>
-                <p class="text-gray-500 text-sm">Select a folder from your computer to host it instantly.</p>
-            </div>
-            <input type="file" id="folder-input" webkitdirectory directory multiple class="hidden" onchange="showForm(this)">
-            <button onclick="document.getElementById('folder-input').click()" class="btn-primary px-8 py-3 rounded-lg font-bold text-sm">Select Folder</button>
+        <div class="card p-10 text-center space-y-4 border-dashed border-2 border-gray-300">
+            <h3 class="text-lg font-bold">New Deployment</h3>
+            <p class="text-gray-500 text-sm">Drop your folder here to push it live to the cloud.</p>
+            <input type="file" id="folder-input" webkitdirectory directory multiple class="hidden" onchange="showDeployForm(this)">
+            <button onclick="document.getElementById('folder-input').click()" class="btn-blue px-10">Select Project Folder</button>
         </div>
 
-        <div id="deployment-form" class="card p-8 hidden space-y-6">
-            <h3 class="font-bold border-b pb-2">Deployment Settings</h3>
+        <div id="deploy-form" class="card p-8 hidden space-y-6 shadow-xl border-blue-200">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="text-xs font-bold text-gray-600 uppercase">Project Name</label>
-                    <input type="text" id="project-name" class="w-full border rounded-lg p-3 mt-1 outline-none focus:ring-2 focus:ring-blue-500" placeholder="my-web-site">
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-gray-600 uppercase">Entry File</label>
-                    <input type="text" id="entry-file" class="w-full border rounded-lg p-3 mt-1" value="index.html">
-                </div>
+                <input type="text" id="p-name" class="border p-3 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" placeholder="Project Name">
+                <input type="text" id="p-entry" class="border p-3 rounded-lg" value="index.html">
             </div>
-            <button onclick="handleDeploy()" id="upload-btn" class="btn-primary w-full py-4 rounded-lg font-bold">Deploy Now</button>
-            <p id="progress-text" class="text-center text-sm text-blue-600 font-semibold hidden">Uploading files, please wait...</p>
+            <button onclick="runDeployment()" id="run-btn" class="btn-blue w-full">Confirm & Launch</button>
+            <p id="status-msg" class="text-center text-sm text-blue-600 font-bold hidden animate-pulse">Processing files... Please wait.</p>
         </div>
 
     </main>
@@ -75,7 +61,6 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, collection, setDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDXDvBDxZKRB-BjsjKKDNFieu5D0LBaiD4",
@@ -88,108 +73,91 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const db = getFirestore(app);
         const API_BASE = "https://elitegamer859650-browhost.hf.space";
         
-        let currentUser = null;
+        let userKey = ""; // Har user ki apni storage key hogi
 
-        // --- AUTH CHECK ---
-        onAuthStateChanged(auth, async (user) => {
+        onAuthStateChanged(auth, (user) => {
             if (user) {
-                currentUser = user;
-                // Fetch User Details from Firestore
-                const userDoc = await getDoc(doc(db, "users", user.uid));
-                if (userDoc.exists()) {
-                    const data = userDoc.data();
-                    document.getElementById('username-display').innerText = data.name;
-                    document.getElementById('user-pic').src = data.pic;
-                    document.getElementById('user-plan-badge').innerText = (data.plan || 'free') + " Plan";
-                }
+                document.getElementById('display-name').innerText = user.displayName;
+                document.getElementById('display-pic').src = user.photoURL;
+                // Storage key based on email to prevent account mixing
+                userKey = "projects_" + btoa(user.email); 
                 loadProjects();
             } else {
                 window.location.href = 'index.html';
             }
         });
 
-        // --- DEPLOY LOGIC ---
-        window.showForm = (input) => {
+        window.showDeployForm = (input) => {
             if(input.files.length > 0) {
-                document.getElementById('deployment-form').classList.remove('hidden');
-                const folderName = input.files[0].webkitRelativePath.split('/')[0];
-                document.getElementById('project-name').value = folderName.toLowerCase().replace(/\s+/g, '-');
+                document.getElementById('deploy-form').classList.remove('hidden');
+                const folder = input.files[0].webkitRelativePath.split('/')[0];
+                document.getElementById('p-name').value = folder.toLowerCase().replace(/\s+/g, '-');
             }
         };
 
-        window.handleDeploy = async () => {
-            const folderInput = document.getElementById('folder-input');
-            const projectName = document.getElementById('project-name').value.trim();
-            const btn = document.getElementById('upload-btn');
-            const progress = document.getElementById('progress-text');
+        window.runDeployment = async () => {
+            const files = document.getElementById('folder-input').files;
+            const name = document.getElementById('p-name').value.trim();
+            const btn = document.getElementById('run-btn');
+            const msg = document.getElementById('status-msg');
 
-            if (!folderInput.files.length || !projectName) return alert("Please fill all fields.");
+            if (!files.length || !name) return alert("Missing Info!");
 
             btn.disabled = true;
-            progress.classList.remove('hidden');
+            msg.classList.remove('hidden');
 
             const zip = new JSZip();
-            for (let file of folderInput.files) {
-                const path = file.webkitRelativePath.split('/').slice(1).join('/');
-                if(path) zip.file(path, file);
+            for (let f of files) {
+                const path = f.webkitRelativePath.split('/').slice(1).join('/');
+                if(path) zip.file(path, f);
             }
 
             try {
                 const zipBlob = await zip.generateAsync({ type: "blob" });
-                const formData = new FormData();
-                formData.append('file', zipBlob, 'site.zip');
-                formData.append('project_name', projectName);
+                const fd = new FormData();
+                fd.append('file', zipBlob, 'site.zip');
+                fd.append('project_name', name);
 
-                const res = await fetch(`${API_BASE}/deploy-folder`, { method: 'POST', body: formData });
+                const res = await fetch(`${API_BASE}/deploy-folder`, { method: 'POST', body: fd });
                 const data = await res.json();
 
                 if (data.status === "success") {
-                    // Save project to Firestore
-                    await setDoc(doc(db, "projects", data.deploy_id), {
-                        name: projectName,
-                        subdomain: data.deploy_id,
-                        owner_uid: currentUser.uid,
-                        main: document.getElementById('entry-file').value,
-                        date: new Date().toISOString()
+                    // Save locally but account-specific
+                    let projects = JSON.parse(localStorage.getItem(userKey)) || [];
+                    projects.unshift({
+                        name: name,
+                        id: data.deploy_id,
+                        entry: document.getElementById('p-entry').value,
+                        time: new Date().toLocaleDateString()
                     });
-                    alert("Project Deployed Successfully!");
+                    localStorage.setItem(userKey, JSON.stringify(projects));
+                    
+                    alert("Success! Site is Live.");
                     location.reload();
-                } else {
-                    alert("Error: " + data.error);
                 }
-            } catch (e) {
-                alert("Connection error with hosting engine.");
-            } finally {
-                btn.disabled = false;
-                progress.classList.add('hidden');
-            }
+            } catch (e) { alert("Server Error!"); }
+            finally { btn.disabled = false; msg.classList.add('hidden'); }
         };
 
-        async function loadProjects() {
+        function loadProjects() {
             const list = document.getElementById('active-list');
-            const q = query(collection(db, "projects"), where("owner_uid", "==", currentUser.uid));
-            const snap = await getDocs(q);
-            
-            document.getElementById('project-count').innerText = snap.size;
-            list.innerHTML = snap.size ? "" : "<p class='text-gray-500 italic text-sm'>No projects deployed yet.</p>";
+            const projects = JSON.parse(localStorage.getItem(userKey)) || [];
+            document.getElementById('project-count').innerText = projects.length;
 
-            snap.forEach(doc => {
-                const p = doc.data();
+            list.innerHTML = projects.length ? "" : "<p class='text-gray-400 italic'>No projects yet.</p>";
+            projects.forEach(p => {
                 list.innerHTML += `
-                <div class="card p-6 flex flex-col justify-between space-y-4">
-                    <div>
-                        <h4 class="font-bold text-gray-800 truncate">${p.name}</h4>
-                        <p class="text-[10px] text-blue-600 font-mono">browhost.app/${p.subdomain}</p>
-                    </div>
-                    <a href="${API_BASE}/view/${p.subdomain}/${p.main}" target="_blank" class="text-center bg-gray-100 hover:bg-gray-200 py-2 rounded-lg text-xs font-semibold transition-colors">Open Website</a>
+                <div class="card p-6 space-y-4">
+                    <h4 class="font-bold text-gray-800 truncate">${p.name}</h4>
+                    <p class="text-[10px] text-blue-600 font-mono italic">Deployed: ${p.time}</p>
+                    <a href="${API_BASE}/view/${p.id}/${p.entry}" target="_blank" class="block text-center bg-blue-50 text-blue-600 py-2 rounded-lg text-xs font-bold hover:bg-blue-600 hover:text-white transition-all">Open Link</a>
                 </div>`;
             });
         }
 
-        window.logout = () => signOut(auth).then(() => window.location.href = 'index.html');
+        window.logout = () => signOut(auth).then(() => { localStorage.clear(); window.location.href = 'index.html'; });
     </script>
 </body>
 </html>
