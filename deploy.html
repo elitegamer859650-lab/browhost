@@ -11,12 +11,10 @@
         .repo-card, .settings-panel { background: #111; border: 1px solid #222; transition: 0.3s; }
         .repo-card:hover { border-color: #00d2ff; }
         .neon-text { color: #00d2ff; text-shadow: 0 0 10px rgba(0, 210, 255, 0.3); }
-        .input-field { background: #000; border: 1px solid #333; color: #fff; outline: none; transition: 0.2s; }
-        .input-field:focus { border-color: #00d2ff; box-shadow: 0 0 5px rgba(0, 210, 255, 0.2); }
-        .btn-glow { box-shadow: 0 0 15px rgba(0, 210, 255, 0.2); }
-        .btn-glow:hover { box-shadow: 0 0 25px rgba(0, 210, 255, 0.4); }
-        .loading-spinner { animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .input-field { background: #000; border: 1px solid #333; color: #fff; outline: none; transition: 0.2s; padding: 12px; width: 100%; border-radius: 12px; }
+        .input-field:focus { border-color: #00d2ff; }
+        .btn-glow { background: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%); transition: 0.3s; box-shadow: 0 0 15px rgba(0, 210, 255, 0.2); }
+        .btn-glow:hover { transform: translateY(-2px); box-shadow: 0 0 25px rgba(0, 210, 255, 0.4); }
     </style>
 </head>
 <body>
@@ -25,9 +23,9 @@
         <h1 class="text-2xl font-black italic tracking-tighter cursor-pointer" onclick="location.reload()">
             BROW<span class="neon-text">HOST</span>
         </h1>
-        <div id="user-info" class="flex items-center gap-3 text-sm font-mono">
-            <i class="fab fa-github text-xl text-white"></i>
-            <span id="username-display" class="text-cyan-400">Verifying...</span>
+        <div id="user-info" class="flex items-center gap-3 text-sm">
+            <img id="user-pic" src="" class="w-8 h-8 rounded-full border border-cyan-500 hidden">
+            <span id="username-display" class="text-gray-300 font-mono">Verifying...</span>
             <button onclick="logout()" class="ml-4 text-red-500 text-xs hover:underline">Logout</button>
         </div>
     </nav>
@@ -37,73 +35,71 @@
         <section id="projects-section">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-xl font-bold flex items-center gap-2">
-                    <i class="fas fa-server text-green-500"></i> Active Deployments
+                    <i class="fas fa-server text-green-500"></i> My Live Sites
                     <span id="project-count" class="bg-gray-800 text-xs px-2 py-1 rounded-full text-gray-400 ml-2">0</span>
                 </h2>
-                <div id="status-dot" class="flex items-center gap-2 text-[10px] text-gray-500 uppercase tracking-widest">
-                    Engine: <span class="w-2 h-2 rounded-full bg-yellow-500" id="engine-status"></span>
+                <div class="flex items-center gap-2 text-[10px] text-gray-500 uppercase font-bold">
+                    Engine Status: <span class="w-2 h-2 rounded-full bg-yellow-500" id="engine-status"></span>
                 </div>
             </div>
             <div id="active-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         </section>
 
-        <section id="settings-section" class="hidden">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-bold flex items-center gap-2">
-                    <i class="fas fa-tools text-cyan-400"></i> Project Settings: <span id="setting-project-name" class="text-gray-400"></span>
-                </h2>
-                <button onclick="hideSettings()" class="text-sm text-gray-500 hover:text-white transition-all">
-                    <i class="fas fa-arrow-left"></i> Back
-                </button>
+        <section id="upload-section" class="settings-panel p-8 rounded-3xl border-2 border-dashed border-gray-800 text-center">
+            <div class="mb-6">
+                <i class="fas fa-cloud-upload-alt text-5xl text-cyan-400 mb-4"></i>
+                <h3 class="text-2xl font-bold">Host New Project</h3>
+                <p class="text-gray-500 text-sm">Upload your <b>index.html</b> to go live instantly</p>
             </div>
-
-            <div class="settings-panel rounded-3xl p-8 space-y-8">
-                <div>
-                    <label class="block text-sm font-bold mb-3 uppercase tracking-widest text-gray-500">Public URL</label>
-                    <div class="flex flex-col md:flex-row gap-3">
-                        <div class="flex-grow flex items-center bg-black border border-gray-700 rounded-xl overflow-hidden">
-                            <span class="pl-4 text-gray-600 text-xs">/view/</span>
-                            <input type="text" id="subdomain-input" class="bg-transparent border-none p-3 text-sm text-cyan-400 outline-none w-full" readonly>
-                        </div>
-                        <button onclick="updateSubdomain()" class="bg-gray-800 text-gray-400 px-8 py-3 rounded-xl font-bold text-xs cursor-not-allowed" disabled>Locked</button>
-                    </div>
-                </div>
-
-                <div class="pt-8 border-t border-gray-800">
-                    <label class="block text-sm font-bold mb-3 uppercase tracking-widest text-gray-500 text-red-500">Delete Project</label>
-                    <button onclick="deleteProject()" class="text-xs bg-red-600/10 text-red-500 border border-red-600/20 px-4 py-2 rounded-lg hover:bg-red-600 hover:text-white transition-all">
-                        Remove Deployment
-                    </button>
-                </div>
+            
+            <div class="max-w-md mx-auto space-y-4">
+                <input type="text" id="direct-project-name" class="input-field" placeholder="Project Name (e.g. My Portfolio)">
+                <input type="file" id="direct-file" accept=".html" class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-cyan-600 file:text-white hover:file:bg-cyan-700 cursor-pointer">
+                <button onclick="handleDirectUpload()" id="upload-btn" class="btn-glow w-full py-3 rounded-xl font-bold text-black mt-4 transition-all uppercase tracking-widest">
+                    Launch Site
+                </button>
             </div>
         </section>
 
-        <section id="import-section">
-            <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
-                <i class="fab fa-github text-white"></i> Import New Repository
-            </h2>
-            <div id="repos-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="repo-card p-6 rounded-xl animate-pulse bg-gray-900/50 h-24"></div>
+        <section id="settings-section" class="hidden">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold flex items-center gap-2 text-cyan-400">
+                    <i class="fas fa-tools"></i> Project Settings
+                </h2>
+                <button onclick="hideSettings()" class="text-sm text-gray-500 hover:text-white">Back</button>
+            </div>
+            <div class="settings-panel rounded-3xl p-8 space-y-6 text-center">
+                <p class="text-sm text-gray-500">Live URL:</p>
+                <div id="subdomain-display" class="bg-black p-4 rounded-xl text-cyan-400 font-mono text-lg break-all"></div>
+                <button onclick="deleteProject()" class="text-xs bg-red-600/10 text-red-500 border border-red-900/30 px-6 py-3 rounded-xl hover:bg-red-600 hover:text-white transition-all">Delete Site</button>
             </div>
         </section>
     </main>
 
     <script>
-        // Ghost bhai, apni HF space ka sahi URL yahan confirm karein
-        const API_BASE = "https://elitegamer859650-browhost.hf.space/";
+        const API_BASE = "https://elitegamer859650-browhost.hf.space";
         let deployedProjects = JSON.parse(localStorage.getItem('browhost_projects')) || [];
-        let githubToken = localStorage.getItem('gh_token');
         let currentEditingId = null;
 
-        async function init() {
-            // Check Engine Health
-            checkEngine();
+        function init() {
+            // Check Google User Info from Firebase
+            const userName = localStorage.getItem('bh_user_name');
+            const userPic = localStorage.getItem('bh_user_pic');
             
-            const urlParams = new URLSearchParams(window.location.search);
-            const code = urlParams.get('code');
-            if (code) { await exchangeCodeForToken(code); }
-            else if (githubToken) { loadRepos(githubToken); updateActiveList(); }
-            else { window.location.href = 'index.html'; }
+            if (!userName) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            document.getElementById('username-display').innerText = userName;
+            if (userPic) {
+                const picEl = document.getElementById('user-pic');
+                picEl.src = userPic;
+                picEl.classList.remove('hidden');
+            }
+
+            checkEngine();
+            updateActiveList();
         }
 
         async function checkEngine() {
@@ -112,76 +108,53 @@
                 if(res.ok) document.getElementById('engine-status').className = "w-2 h-2 rounded-full bg-green-500";
             } catch(e) {
                 document.getElementById('engine-status').className = "w-2 h-2 rounded-full bg-red-500";
-                console.error("Engine Offline:", e);
             }
         }
 
-        async function exchangeCodeForToken(code) {
-            try {
-                const response = await fetch(`${API_BASE}/auth/token?code=${encodeURIComponent(code)}`, { method: 'POST' });
-                const data = await response.json();
-                if (data.access_token) {
-                    githubToken = data.access_token;
-                    localStorage.setItem('gh_token', githubToken);
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                    loadRepos(githubToken);
-                }
-            } catch (e) { console.error("Auth Fail"); }
-        }
+        // --- DIRECT FILE UPLOAD LOGIC ---
+        async function handleDirectUpload() {
+            const fileInput = document.getElementById('direct-file');
+            const projectName = document.getElementById('direct-project-name').value.trim();
+            const btn = document.getElementById('upload-btn');
 
-        async function loadRepos(token) {
-            try {
-                const res = await fetch('https://api.github.com/user/repos?sort=updated&per_page=100', {
-                    headers: { 'Authorization': `token ${token}` }
-                });
-                const repos = await res.json();
-                if(repos.length > 0) document.getElementById('username-display').innerText = repos[0].owner.login;
-                
-                const container = document.getElementById('repos-list');
-                container.innerHTML = repos.map(repo => `
-                    <div class="repo-card p-6 rounded-2xl flex justify-between items-center">
-                        <div class="overflow-hidden"><h4 class="font-bold truncate text-sm">${repo.name}</h4></div>
-                        <button onclick="deployProject('${repo.full_name}')" class="bg-white text-black px-5 py-2 rounded-lg font-black text-xs hover:bg-cyan-400 transition-all shadow-lg">IMPORT</button>
-                    </div>
-                `).join('');
-            } catch (e) { console.error(e); }
-        }
+            if (!fileInput.files[0] || !projectName) {
+                alert("Bhai, Project Name aur index.html file dono chahiye!");
+                return;
+            }
 
-        async function deployProject(repoFullName) {
-            const btn = event.target;
-            const originalText = btn.innerText;
-            btn.innerText = "DEPLOYING...";
+            btn.innerText = "UPLOADING...";
             btn.disabled = true;
 
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('project_name', projectName);
+
             try {
-                // FIXED: Adding mode: 'cors' and proper error handling
-                const res = await fetch(`${API_BASE}/deploy-engine?repo_full_name=${repoFullName}&token=${githubToken}`, {
+                const res = await fetch(`${API_BASE}/upload-direct`, {
                     method: 'POST',
-                    mode: 'cors' 
+                    body: formData
                 });
-                
-                if (!res.ok) throw new Error('Server returned ' + res.status);
-                
                 const data = await res.json();
 
                 if (data.status === "success") {
                     const project = { 
                         id: Date.now(), 
-                        name: repoFullName.split('/')[1], 
+                        name: projectName, 
                         subdomain: data.deploy_id 
                     };
                     deployedProjects.unshift(project);
                     saveToStorage();
                     updateActiveList();
-                    alert("Deploy Successful!");
+                    alert("Site is LIVE!");
+                    document.getElementById('direct-project-name').value = "";
+                    fileInput.value = "";
                 } else {
-                    alert("Engine Error: " + (data.error || "Check HF Logs"));
+                    alert("Error: " + data.error);
                 }
             } catch (e) {
-                console.error("Deploy Error Details:", e);
-                alert("Connection Failed! 1. Check if HF Space is Running. 2. Check if API URL is correct.");
+                alert("Engine se connection nahi ho raha!");
             } finally {
-                btn.innerText = originalText;
+                btn.innerText = "LAUNCH SITE";
                 btn.disabled = false;
             }
         }
@@ -190,16 +163,13 @@
             const list = document.getElementById('active-list');
             document.getElementById('project-count').innerText = deployedProjects.length;
             if(deployedProjects.length === 0) {
-                list.innerHTML = `<div class="col-span-full py-16 border-2 border-dashed border-gray-800 rounded-3xl text-center"><p class="text-gray-600 italic">No sites live yet.</p></div>`;
+                list.innerHTML = `<div class="col-span-full py-16 border-2 border-dashed border-gray-800 rounded-3xl text-center"><p class="text-gray-600 italic">No deployments found.</p></div>`;
                 return;
             }
             list.innerHTML = deployedProjects.map(p => `
-                <div class="bg-[#0a0a0a] border border-gray-800 p-6 rounded-2xl flex justify-between items-center hover:border-cyan-500/30 transition-all group">
+                <div class="bg-[#0a0a0a] border border-gray-800 p-6 rounded-2xl flex justify-between items-center group">
                     <div>
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                            <h4 class="font-bold text-white text-sm">${p.name}</h4>
-                        </div>
+                        <h4 class="font-bold text-white text-sm">${p.name}</h4>
                         <a href="https://browhost.vercel.app/view/${p.subdomain}" target="_blank" class="text-[10px] text-gray-500 group-hover:text-cyan-400 underline italic">browhost.vercel.app/view/${p.subdomain}</a>
                     </div>
                     <button onclick="showSettings(${p.id})" class="bg-gray-900 p-3 rounded-xl hover:bg-gray-800 text-gray-500 hover:text-white">
@@ -213,21 +183,19 @@
             currentEditingId = id;
             const project = deployedProjects.find(p => p.id === id);
             document.getElementById('projects-section').classList.add('hidden');
-            document.getElementById('import-section').classList.add('hidden');
+            document.getElementById('upload-section').classList.add('hidden');
             document.getElementById('settings-section').classList.remove('hidden');
-            document.getElementById('setting-project-name').innerText = project.name;
-            document.getElementById('subdomain-input').value = project.subdomain;
-            window.scrollTo(0,0);
+            document.getElementById('subdomain-display').innerText = `browhost.vercel.app/view/${project.subdomain}`;
         }
 
         function hideSettings() {
             document.getElementById('settings-section').classList.add('hidden');
             document.getElementById('projects-section').classList.remove('hidden');
-            document.getElementById('import-section').classList.remove('hidden');
+            document.getElementById('upload-section').classList.remove('hidden');
         }
 
         function deleteProject() {
-            if(confirm("Bhai, delete kar dein?")) {
+            if(confirm("Bhai, kya aap is site ko delete karna chahte hain?")) {
                 deployedProjects = deployedProjects.filter(p => p.id !== currentEditingId);
                 saveToStorage();
                 updateActiveList();
