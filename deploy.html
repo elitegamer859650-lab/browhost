@@ -15,7 +15,7 @@
         .input-field { background: #000; border: 1px solid #333; color: #fff; outline: none; transition: 0.2s; padding: 12px; width: 100%; border-radius: 12px; }
         .btn-glow { background: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%); transition: 0.3s; box-shadow: 0 0 15px rgba(0, 210, 255, 0.2); }
         .btn-glow:hover { transform: translateY(-2px); box-shadow: 0 0 25px rgba(0, 210, 255, 0.4); }
-        .drop-zone { border: 2px dashed #333; transition: 0.3s; }
+        .drop-zone { border: 2px dashed #222; transition: 0.3s; cursor: pointer; }
         .drop-zone:hover { border-color: #00d2ff; background: rgba(0, 210, 255, 0.05); }
     </style>
 </head>
@@ -27,58 +27,90 @@
         </h1>
         <div id="user-info" class="flex items-center gap-3 text-sm">
             <img id="user-pic" src="" class="w-8 h-8 rounded-full border border-cyan-500 hidden">
-            <span id="username-display" class="text-gray-300 font-mono text-xs italic">Verifying...</span>
-            <button onclick="logout()" class="ml-4 text-red-500 text-xs hover:underline">Logout</button>
+            <div class="flex flex-col text-right">
+                <span id="username-display" class="text-white font-bold leading-none">Verifying...</span>
+                <span class="text-[10px] text-gray-500 uppercase">Engine User</span>
+            </div>
+            <button onclick="logout()" class="ml-4 text-red-500 text-xs hover:underline hover:text-red-400">Logout</button>
         </div>
     </nav>
 
     <main class="max-w-5xl mx-auto p-6 space-y-12">
         
         <section id="projects-section">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold flex items-center gap-2">
-                    <i class="fas fa-server text-green-500"></i> My Deployments
-                    <span id="project-count" class="bg-gray-800 text-xs px-2 py-1 rounded-full text-gray-400 ml-2">0</span>
-                </h2>
-                <div class="flex items-center gap-2 text-[10px] text-gray-500 uppercase font-bold tracking-widest">
-                    Engine: <span class="w-2 h-2 rounded-full bg-yellow-500" id="engine-status"></span>
+            <div class="flex justify-between items-end mb-6">
+                <div>
+                    <h2 class="text-2xl font-black flex items-center gap-2">
+                        <i class="fas fa-layer-group text-cyan-500"></i> Active Projects
+                    </h2>
+                    <p class="text-xs text-gray-500">Manage and monitor your live deployments</p>
+                </div>
+                <div class="flex flex-col items-end">
+                    <span id="project-count" class="text-3xl font-black text-white">0</span>
+                    <div class="flex items-center gap-2 text-[9px] text-gray-500 uppercase font-bold tracking-widest">
+                        Storage Engine: <span class="w-2 h-2 rounded-full bg-yellow-500" id="engine-status"></span>
+                    </div>
                 </div>
             </div>
             <div id="active-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         </section>
 
-        <section id="upload-section" class="settings-panel p-10 rounded-3xl drop-zone text-center">
-            <div class="mb-6">
-                <i class="fas fa-folder-plus text-5xl text-cyan-400 mb-4"></i>
-                <h3 class="text-2xl font-bold">Deploy New Folder</h3>
-                <p class="text-gray-500 text-sm italic">Include a <b>browhost.json</b> for custom settings</p>
+        <section id="upload-section" class="settings-panel p-1 w-full rounded-3xl overflow-hidden">
+            <div class="p-10 drop-zone rounded-[22px] flex flex-col items-center justify-center space-y-4" onclick="document.getElementById('folder-input').click()">
+                <div class="w-20 h-20 bg-gray-900 rounded-full flex items-center justify-center border border-gray-800">
+                    <i class="fas fa-upload text-3xl text-cyan-400"></i>
+                </div>
+                <div class="text-center">
+                    <h3 class="text-xl font-bold">Select Project Directory</h3>
+                    <p class="text-gray-500 text-sm">BrowHost will automatically detect your <b>index.html</b></p>
+                </div>
+                <input type="file" id="folder-input" webkitdirectory directory multiple class="hidden" onchange="handleFileSelect(this)">
             </div>
             
-            <div class="max-w-md mx-auto space-y-4 text-left">
-                <label class="block text-xs text-gray-500 uppercase ml-1">Project Name</label>
-                <input type="text" id="project-name" class="input-field" placeholder="my-awesome-app">
+            <div id="deployment-form" class="hidden p-8 border-t border-gray-900 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-2 ml-1">Project Name</label>
+                        <input type="text" id="project-name" class="input-field" placeholder="my-awesome-site">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-2 ml-1">Main Entry File</label>
+                        <input type="text" id="entry-file" class="input-field" value="index.html" placeholder="index.html">
+                    </div>
+                </div>
                 
-                <label class="block text-xs text-gray-500 uppercase ml-1">Select Folder</label>
-                <input type="file" id="folder-input" webkitdirectory mozdirectory directory multiple class="block w-full text-xs text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-gray-800 file:text-cyan-400 hover:file:bg-gray-700 cursor-pointer">
-                
-                <button onclick="handleDeploy()" id="upload-btn" class="btn-glow w-full py-4 rounded-xl font-bold text-black mt-4 transition-all uppercase tracking-widest">
-                    Deploy to BrowHost
+                <div class="bg-blue-500/5 border border-blue-500/20 p-4 rounded-xl flex items-center gap-3">
+                    <i class="fas fa-info-circle text-blue-400"></i>
+                    <p class="text-xs text-blue-200">Selected <span id="file-count" class="font-bold">0</span> files. Ready to compress and upload.</p>
+                </div>
+
+                <button onclick="handleDeploy()" id="upload-btn" class="btn-glow w-full py-4 rounded-xl font-black text-black uppercase tracking-widest">
+                    Confirm & Deploy
                 </button>
-                <div id="progress" class="text-center text-xs text-cyan-500 hidden animate-pulse">Zipping Files... Please wait...</div>
+                <div id="progress" class="text-center text-xs text-cyan-500 hidden font-mono animate-pulse">
+                    <i class="fas fa-cog fa-spin mr-2"></i> ARCHIVING FOLDER STRUCTURE...
+                </div>
             </div>
         </section>
 
         <section id="settings-section" class="hidden">
             <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-bold flex items-center gap-2 text-cyan-400">
-                    <i class="fas fa-cog"></i> Configuration
+                <h2 class="text-xl font-bold flex items-center gap-2">
+                    <i class="fas fa-terminal text-cyan-500"></i> Deployment Details
                 </h2>
-                <button onclick="hideSettings()" class="text-sm text-gray-500 hover:text-white underline">Close</button>
+                <button onclick="hideSettings()" class="text-xs text-gray-500 hover:text-white uppercase font-bold tracking-widest">
+                    <i class="fas fa-times mr-1"></i> Close
+                </button>
             </div>
-            <div class="settings-panel rounded-3xl p-10 text-center space-y-6">
-                <p class="text-xs text-gray-500 uppercase tracking-widest">Deployed URL</p>
-                <div id="subdomain-display" class="bg-black p-5 rounded-2xl text-cyan-400 font-mono text-sm break-all border border-gray-800"></div>
-                <button onclick="deleteProject()" class="text-xs bg-red-600/10 text-red-500 border border-red-900/20 px-10 py-3 rounded-xl hover:bg-red-600 hover:text-white transition-all font-bold">Destroy Project</button>
+            <div class="settings-panel rounded-3xl p-10 space-y-8">
+                <div>
+                    <p class="text-[10px] text-gray-500 uppercase font-bold mb-4 ml-1">Public Endpoint</p>
+                    <div id="subdomain-display" class="bg-black p-5 rounded-2xl text-cyan-400 font-mono text-sm break-all border border-gray-800 shadow-inner"></div>
+                </div>
+                <div class="flex gap-4">
+                    <button id="open-site" class="flex-grow bg-gray-800 py-3 rounded-xl text-xs font-bold hover:bg-gray-700 transition-all">Visit Website</button>
+                    <button onclick="deleteProject()" class="px-6 bg-red-600/10 text-red-500 border border-red-900/20 rounded-xl hover:bg-red-600 hover:text-white transition-all"><i class="fas fa-trash"></i></button>
+                </div>
             </div>
         </section>
     </main>
@@ -102,19 +134,48 @@
             try {
                 const res = await fetch(API_BASE + "/");
                 if(res.ok) document.getElementById('engine-status').className = "w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_#22c55e]";
-            } catch(e) { document.getElementById('engine-status').className = "w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444]"; }
+            } catch(e) { document.getElementById('engine-status').className = "w-2 h-2 rounded-full bg-red-500"; }
+        }
+
+        // --- NEW: Smart File Selection ---
+        async function handleFileSelect(input) {
+            if(!input.files.length) return;
+            
+            const form = document.getElementById('deployment-form');
+            const nameInput = document.getElementById('project-name');
+            const countLabel = document.getElementById('file-count');
+            
+            form.classList.remove('hidden');
+            countLabel.innerText = input.files.length;
+            
+            // Auto-detect project name from folder
+            const folderName = input.files[0].webkitRelativePath.split('/')[0];
+            nameInput.value = folderName.toLowerCase().replace(/\s+/g, '-');
+
+            // Look for browhost.json
+            for(let file of input.files) {
+                if(file.name === 'browhost.json') {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const config = JSON.parse(e.target.result);
+                            if(config.name) nameInput.value = config.name;
+                            if(config.main) document.getElementById('entry-file').value = config.main;
+                        } catch(err) { console.error("browhost.json error"); }
+                    };
+                    reader.readAsText(file);
+                }
+            }
         }
 
         async function handleDeploy() {
             const folderInput = document.getElementById('folder-input');
-            const projectName = document.getElementById('project-name').value.trim().toLowerCase().replace(/\s+/g, '-');
+            const projectName = document.getElementById('project-name').value.trim();
+            const entryFile = document.getElementById('entry-file').value.trim();
             const btn = document.getElementById('upload-btn');
             const progress = document.getElementById('progress');
 
-            if (!folderInput.files.length || !projectName) {
-                alert("Bhai, Name aur Folder dono chahiye!");
-                return;
-            }
+            if (!folderInput.files.length || !projectName) return;
 
             btn.disabled = true;
             progress.classList.remove('hidden');
@@ -122,66 +183,71 @@
             const zip = new JSZip();
             const files = folderInput.files;
 
-            // Browser mein hi ZIP banana
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
+                // Maintain internal structure
                 const path = file.webkitRelativePath.split('/').slice(1).join('/'); 
-                zip.file(path, file);
+                if(path) zip.file(path, file);
             }
 
             const zipBlob = await zip.generateAsync({ type: "blob" });
-            progress.innerText = "Uploading Zip to Engine...";
+            progress.innerText = "PUSHING ASSETS TO BACKBLAZE B2...";
 
             const formData = new FormData();
-            formData.append('file', zipBlob, 'bundle.zip');
+            formData.append('file', zipBlob, 'project.zip');
             formData.append('project_name', projectName);
 
             try {
-                const res = await fetch(`${API_BASE}/deploy-folder`, {
-                    method: 'POST',
-                    body: formData
-                });
+                const res = await fetch(`${API_BASE}/deploy-folder`, { method: 'POST', body: formData });
                 const data = await res.json();
 
                 if (data.status === "success") {
-                    deployedProjects.unshift({ id: Date.now(), name: projectName, subdomain: data.deploy_id });
+                    deployedProjects.unshift({ 
+                        id: Date.now(), 
+                        name: projectName, 
+                        subdomain: data.deploy_id,
+                        main: entryFile 
+                    });
                     saveToStorage();
                     updateActiveList();
-                    alert("Deployment Successful! Folder is Live.");
-                } else { alert("Error: " + data.error); }
-            } catch (e) { alert("Engine connection failed!"); }
-            finally { 
-                btn.disabled = false; 
-                progress.classList.add('hidden');
-                progress.innerText = "Zipping Files... Please wait...";
-            }
+                    alert("DEPLOYED! Your folder is now a live website.");
+                    document.getElementById('deployment-form').classList.add('hidden');
+                } else { alert("Engine Error: " + data.error); }
+            } catch (e) { alert("Engine offline!"); }
+            finally { btn.disabled = false; progress.classList.add('hidden'); }
         }
 
         function updateActiveList() {
             const list = document.getElementById('active-list');
             document.getElementById('project-count').innerText = deployedProjects.length;
             if(!deployedProjects.length) {
-                list.innerHTML = `<div class="col-span-full py-16 border-2 border-dashed border-gray-800 rounded-3xl text-center text-gray-600 italic">No live projects yet.</div>`;
+                list.innerHTML = `<div class="col-span-full py-16 border-2 border-dashed border-gray-800 rounded-3xl text-center text-gray-500 text-xs italic">Awaiting your first deployment...</div>`;
                 return;
             }
             list.innerHTML = deployedProjects.map(p => `
-                <div class="bg-[#0a0a0a] border border-gray-800 p-6 rounded-2xl flex justify-between items-center group hover:border-cyan-500/30 transition-all">
+                <div class="bg-[#0a0a0a] border border-gray-800 p-6 rounded-2xl flex justify-between items-center group hover:border-cyan-500/40 transition-all">
                     <div>
-                        <h4 class="font-bold text-white text-sm mb-1 uppercase tracking-tighter">${p.name}</h4>
-                        <a href="https://browhost.vercel.app/view/${p.subdomain}/index.html" target="_blank" class="text-[10px] text-gray-500 group-hover:text-cyan-400 underline italic">browhost.vercel.app/view/${p.subdomain}</a>
+                        <h4 class="font-black text-white text-sm uppercase tracking-tighter">${p.name}</h4>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                            <span class="text-[9px] text-gray-600 font-mono italic">https://browhost.vercel.app/view/${p.subdomain}</span>
+                        </div>
                     </div>
-                    <button onclick="showSettings(${p.id})" class="bg-gray-900 p-3 rounded-xl hover:bg-gray-800 text-gray-500 hover:text-white"><i class="fas fa-cog"></i></button>
+                    <button onclick="showSettings(${p.id})" class="bg-gray-900 w-10 h-10 rounded-xl hover:bg-gray-800 text-gray-400 hover:text-cyan-400 transition-all"><i class="fas fa-ellipsis-v"></i></button>
                 </div>
             `).join('');
         }
 
         function showSettings(id) {
             currentEditingId = id;
-            const project = deployedProjects.find(p => p.id === id);
+            const p = deployedProjects.find(p => p.id === id);
             document.getElementById('projects-section').classList.add('hidden');
             document.getElementById('upload-section').classList.add('hidden');
             document.getElementById('settings-section').classList.remove('hidden');
-            document.getElementById('subdomain-display').innerText = `https://browhost.vercel.app/view/${project.subdomain}/index.html`;
+            
+            const url = `https://browhost.vercel.app/view/${p.subdomain}/${p.main || 'index.html'}`;
+            document.getElementById('subdomain-display').innerText = url;
+            document.getElementById('open-site').onclick = () => window.open(url, '_blank');
         }
 
         function hideSettings() {
@@ -191,7 +257,7 @@
         }
 
         function deleteProject() {
-            if(confirm("Destroy this deployment?")) {
+            if(confirm("DANGER: This will remove the project from your dashboard. Continue?")) {
                 deployedProjects = deployedProjects.filter(p => p.id !== currentEditingId);
                 saveToStorage();
                 updateActiveList();
