@@ -14,44 +14,80 @@
         .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen">
+<body class="flex items-center justify-center min-h-screen p-4">
 
-    <div class="glass-card p-8 rounded-2xl w-full max-w-md text-center neon-border">
-        <div class="mb-6">
+    <div class="glass-card p-8 rounded-3xl w-full max-w-md text-center neon-border">
+        <div class="mb-10">
             <h1 class="text-4xl font-black tracking-tighter italic">
                 BROW<span class="text-cyan-400">HOST</span>
             </h1>
-            <p class="text-gray-400 text-sm mt-2 font-mono">Storage Powered by Backblaze B2</p>
+            <p class="text-gray-500 text-xs mt-2 font-mono uppercase tracking-widest">Independent Hosting Engine</p>
         </div>
 
-        <h2 class="text-xl font-semibold mb-8">Login to your Dashboard</h2>
+        <h2 class="text-xl font-bold mb-8">Welcome Back</h2>
 
-        <button onclick="loginWithGitHub()" class="btn-neon w-full py-4 rounded-lg font-bold flex items-center justify-center gap-3 text-white shadow-lg">
-            <i class="fab fa-github text-2xl"></i>
-            Continue with GitHub
+        <button id="google-login-btn" class="btn-neon w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 text-white shadow-lg">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-6 bg-white rounded-full p-1" alt="Google">
+            Continue with Google
         </button>
 
-        <div id="status-msg" class="mt-4 text-xs text-cyan-500 hidden italic">Connecting to Engine...</div>
+        <div id="loader" class="hidden mt-4 text-cyan-400 animate-pulse text-sm font-mono">
+            Verifying Identity...
+        </div>
 
-        <p class="mt-8 text-xs text-gray-500">
-            By logging in, you agree to BrowHost's <br>
-            <a href="#" class="underline hover:text-cyan-400">Terms of Service</a>
+        <p class="mt-10 text-[10px] text-gray-600 leading-relaxed uppercase tracking-tighter">
+            By continuing, you are entering the next generation of <br>
+            <span class="text-gray-400">Decentralized Web Hosting</span>
         </p>
     </div>
 
-    <script>
-    function loginWithGitHub() {
-        const clientId = "Ov23libthJgOPM6nwfmD";
-        // Ghost bhai, redirect hamesha vahi hona chahiye jo GitHub App settings mein hai
-        const redirectUri = window.location.origin + "/deploy.html"; 
-        const scope = "repo user"; 
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        document.getElementById('status-msg').classList.remove('hidden');
+        // Ghost bhai, ye rahi aapki config
+        const firebaseConfig = {
+            apiKey: "AIzaSyDXDvBDxZKRB-BjsjKKDNFieu5D0LBaiD4",
+            authDomain: "rowhostauth.firebaseapp.com",
+            projectId: "rowhostauth",
+            storageBucket: "rowhostauth.firebasestorage.app",
+            messagingSenderId: "522138528836",
+            appId: "1:522138528836:web:e6f0a4e4eac287b4c0e011",
+            measurementId: "G-719G7VY9HS"
+        };
 
-        const authUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}&state=${Math.random().toString(36).substring(7)}`;
-        
-        window.location.href = authUrl;
-    }
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        window.loginWithGoogle = async () => {
+            const btn = document.getElementById('google-login-btn');
+            const loader = document.getElementById('loader');
+            
+            btn.disabled = true;
+            loader.classList.remove('hidden');
+
+            try {
+                const result = await signInWithPopup(auth, provider);
+                const user = result.user;
+
+                // User data save karna taake Dashboard par nazar aaye
+                localStorage.setItem('bh_user_name', user.displayName);
+                localStorage.setItem('bh_user_email', user.email);
+                localStorage.setItem('bh_user_pic', user.photoURL);
+                localStorage.setItem('bh_user_id', user.uid);
+
+                // Redirect to Dashboard
+                window.location.href = "deploy.html";
+            } catch (error) {
+                console.error("Auth Error:", error);
+                alert("Bhai, Google Login fail ho gaya: " + error.message);
+                btn.disabled = false;
+                loader.classList.add('hidden');
+            }
+        };
+
+        document.getElementById('google-login-btn').onclick = window.loginWithGoogle;
     </script>
 </body>
 </html>
