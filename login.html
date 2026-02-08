@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | BrowHost</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #0a0a0a;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+        }
+        .neon-border {
+            border: 1px solid #00d2ff;
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.3);
+        }
+        .btn-neon {
+            background: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-neon:hover {
+            box-shadow: 0 0 25px rgba(0, 210, 255, 0.6);
+            transform: translateY(-2px);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+
+    <div class="glass-card p-8 rounded-2xl w-full max-w-md text-center neon-border">
+        <div class="mb-6">
+            <h1 class="text-4xl font-black tracking-tighter italic">
+                BROW<span class="text-cyan-400">HOST</span>
+            </h1>
+            <p class="text-gray-400 text-sm mt-2 font-mono">The Next-Gen Hosting Engine</p>
+        </div>
+
+        <h2 class="text-xl font-semibold mb-8">Login to your Dashboard</h2>
+
+        <button onclick="loginWithGitHub()" class="btn-neon w-full py-4 rounded-lg font-bold flex items-center justify-center gap-3 text-white">
+            <i class="fab fa-github text-2xl"></i>
+            Continue with GitHub
+        </button>
+
+        <p class="mt-8 text-xs text-gray-500">
+            By logging in, you agree to BrowHost's <br>
+            <a href="#" class="underline hover:text-cyan-400">Terms of Service</a> and <a href="#" class="underline hover:text-cyan-400">Privacy Policy</a>
+        </p>
+
+        <div class="mt-6 pt-6 border-t border-gray-800">
+            <p class="text-sm text-gray-400 italic">"Your domain, your rules."</p>
+        </div>
+    </div>
+
+    <script>
+        function loginWithGitHub() {
+            const clientId = "Ov23libthJgOPM6nwfmD";
+            // Jab user click karega, GitHub usay is link par le jaye ga
+            const redirectUri = window.location.origin + "/auth/callback"; 
+            const scope = "repo user"; 
+
+            const authUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}`;
+            
+            window.location.href = authUrl;
+        }
+    </script>
+
+</body>
+</html>
