@@ -88,28 +88,89 @@
             if (user) {
                 document.getElementById('display-name').innerText = user.displayName;
                 document.getElementById('display-pic').src = user.photoURL;
-                userKey = "projects_" + btoa(user.email); 
-                
-                // Fetch Plan from Firestore
-                const docRef = doc(db, "users", user.uid);
-                const docSnap = await getDoc(docRef);
-                if(docSnap.exists()){
-                    userPlan = docSnap.data().plan || "free";
-                    document.getElementById('user-plan').innerText = userPlan + " User";
-                    if(userPlan !== 'free') document.getElementById('ai-status').classList.remove('hidden');
-                }
-                
+                userKey = "projects_" + btoa(user.email); <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard | BrowHost</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background: #f4f7f6; color: #333; font-family: 'Segoe UI', sans-serif; }
+        .card { background: white; border-radius: 16px; border: 1px solid #e1e4e8; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .btn-blue { background: #2563eb; color: white; padding: 12px 24px; border-radius: 12px; font-weight: bold; transition: 0.2s; }
+        .btn-blue:hover { background: #1d4ed8; transform: translateY(-1px); }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <nav class="max-w-6xl mx-auto flex justify-between items-center mb-12">
+        <h1 class="text-2xl font-black text-blue-600 tracking-tighter uppercase italic">BrowHost</h1>
+        <div id="user-display" class="flex items-center gap-4">
+            <span id="user-name" class="font-bold text-sm"></span>
+            <img id="user-pic" class="w-10 h-10 rounded-full border">
+            <button onclick="logout()" class="text-red-500"><i class="fas fa-power-off"></i></button>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-1 space-y-6">
+            <div class="card p-8 text-center space-y-4">
+                <h3 class="text-xl font-bold">New Project</h3>
+                <p class="text-gray-500 text-sm">Upload a folder to go live.</p>
+                <input type="file" id="folder-input" webkitdirectory directory multiple class="hidden" onchange="openDeployForm()">
+                <button onclick="document.getElementById('folder-input').click()" class="btn-blue w-full">Select Folder</button>
+            </div>
+
+            <div id="deploy-form" class="card p-6 hidden space-y-4 border-blue-200 bg-blue-50/30">
+                <input type="text" id="p-name" class="w-full p-3 border rounded-lg outline-none" placeholder="Project Name">
+                <input type="text" id="p-entry" class="w-full p-3 border rounded-lg text-xs" value="index.html">
+                <button onclick="runDeployment()" id="run-btn" class="btn-blue w-full shadow-lg">Confirm & Deploy</button>
+                <p id="status" class="text-xs text-center text-blue-600 font-bold hidden animate-pulse">Communicating with Cloud...</p>
+            </div>
+        </div>
+
+        <div class="lg:col-span-2 space-y-6">
+            <h2 class="text-2xl font-bold flex justify-between items-center">
+                Live Sites <span id="project-count" class="bg-gray-200 px-3 py-1 rounded-full text-xs">0</span>
+            </h2>
+            <div id="active-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDXDvBDxZKRB-BjsjKKDNFieu5D0LBaiD4",
+            authDomain: "rowhostauth.firebaseapp.com",
+            projectId: "rowhostauth",
+            storageBucket: "rowhostauth.firebasestorage.app",
+            messagingSenderId: "522138528836",
+            appId: "1:522138528836:web:e6f0a4e4eac287b4c0e011"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const API_BASE = "https://elitegamer859650-browhost.hf.space";
+        let userKey = "";
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('user-name').innerText = user.displayName;
+                document.getElementById('user-pic').src = user.photoURL;
+                userKey = "projects_" + btoa(user.email);
                 loadProjects();
-            } else {
-                window.location.href = 'index.html';
-            }
+            } else { window.location.href = 'index.html'; }
         });
 
-        window.showDeployForm = (input) => {
-            if(input.files.length > 0) {
+        window.openDeployForm = () => {
+            const files = document.getElementById('folder-input').files;
+            if (files.length) {
                 document.getElementById('deploy-form').classList.remove('hidden');
-                const folder = input.files[0].webkitRelativePath.split('/')[0];
-                document.getElementById('p-name').value = folder.toLowerCase().replace(/\s+/g, '-');
+                document.getElementById('p-name').value = files[0].webkitRelativePath.split('/')[0].toLowerCase().replace(/\s+/g, '-');
             }
         };
 
@@ -117,67 +178,51 @@
             const files = document.getElementById('folder-input').files;
             const name = document.getElementById('p-name').value.trim();
             const btn = document.getElementById('run-btn');
-            const msg = document.getElementById('status-msg');
+            const status = document.getElementById('status');
 
-            if (!files.length || !name) return alert("Missing Info!");
+            if (!files.length || !name) return alert("Fill all fields!");
 
-            btn.disabled = true;
-            msg.classList.remove('hidden');
-            msg.innerText = "Compressing files...";
-
-            const zip = new JSZip();
-            for (let f of files) {
-                const path = f.webkitRelativePath.split('/').slice(1).join('/');
-                if(path) zip.file(path, f);
-            }
+            btn.disabled = true; status.classList.remove('hidden');
 
             try {
+                const zip = new JSZip();
+                for (let f of files) {
+                    const path = f.webkitRelativePath.split('/').slice(1).join('/');
+                    if (path) zip.file(path, f);
+                }
                 const zipBlob = await zip.generateAsync({ type: "blob" });
-                msg.innerText = "Uploading to Cloud Engine...";
-                
                 const fd = new FormData();
                 fd.append('file', zipBlob, 'site.zip');
                 fd.append('project_name', name);
 
-                const res = await fetch(`${API_BASE}/deploy-folder`, { method: 'POST', body: fd });
+                // Fetch with manual CORS enforcement
+                const res = await fetch(`${API_BASE}/deploy-folder`, { method: 'POST', body: fd, mode: 'cors' });
                 const data = await res.json();
 
                 if (data.status === "success") {
                     let projects = JSON.parse(localStorage.getItem(userKey)) || [];
-                    projects.unshift({
-                        name: name,
-                        id: data.deploy_id,
-                        entry: document.getElementById('p-entry').value,
-                        time: new Date().toLocaleDateString()
-                    });
+                    projects.unshift({ name, id: data.deploy_id, entry: document.getElementById('p-entry').value, time: new Date().toLocaleDateString() });
                     localStorage.setItem(userKey, JSON.stringify(projects));
-                    alert("Success! Site is Live.");
+                    alert("DEPLOYED SUCCESSFULLY!");
                     location.reload();
-                } else {
-                    // YAHAN ERROR SHOW HOGA
-                    alert("Backend Error: " + (data.details || data.error || "Unknown Error"));
-                }
-            } catch (e) { 
-                console.error(e);
-                alert("Server Connection Failed! Please check if Hugging Face Space is Running."); 
-            }
-            finally { btn.disabled = false; msg.classList.add('hidden'); }
+                } else { alert("Server Error: " + (data.details || "Unknown")); }
+            } catch (e) { alert("CONNECTION FAILED: Check if Space is Public & Running."); }
+            finally { btn.disabled = false; status.classList.add('hidden'); }
         };
 
         function loadProjects() {
             const list = document.getElementById('active-list');
             const projects = JSON.parse(localStorage.getItem(userKey)) || [];
             document.getElementById('project-count').innerText = projects.length;
-
-            list.innerHTML = projects.length ? "" : "<p class='text-gray-400 italic'>No projects yet.</p>";
-            projects.forEach(p => {
-                list.innerHTML += `
-                <div class="card p-6 space-y-4">
-                    <h4 class="font-bold text-gray-800 truncate">${p.name}</h4>
-                    <p class="text-[10px] text-blue-600 font-mono">ID: ${p.id}</p>
-                    <a href="${API_BASE}/view/${p.id}/${p.entry}" target="_blank" class="block text-center bg-blue-50 text-blue-600 py-2 rounded-lg text-xs font-bold hover:bg-blue-600 hover:text-white transition-all">Open Website</a>
-                </div>`;
-            });
+            list.innerHTML = projects.map(p => `
+                <div class="card p-6 space-y-4 hover:border-blue-500 transition-all">
+                    <div>
+                        <h4 class="font-bold text-gray-800">${p.name}</h4>
+                        <p class="text-[10px] text-gray-400 font-mono italic">${p.time}</p>
+                    </div>
+                    <a href="${API_BASE}/view/${p.id}/${p.entry}" target="_blank" class="block text-center bg-blue-50 text-blue-600 py-2 rounded-lg text-xs font-bold hover:bg-blue-600 hover:text-white">Open Live Site</a>
+                </div>
+            `).join('') || "<p class='text-gray-400 italic text-sm'>No projects yet.</p>";
         }
 
         window.logout = () => signOut(auth).then(() => { localStorage.clear(); window.location.href = 'index.html'; });
