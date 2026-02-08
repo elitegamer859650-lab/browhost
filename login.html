@@ -59,17 +59,19 @@
     </div>
 
     <script>
-        function loginWithGitHub() {
-            const clientId = "Ov23libthJgOPM6nwfmD";
-            // Jab user click karega, GitHub usay is link par le jaye ga
-            const redirectUri = window.location.origin + "/auth/callback"; 
-            const scope = "repo user"; 
+    function loginWithGitHub() {
+        const clientId = "Ov23libthJgOPM6nwfmD";
+        
+        // Ye aapka GitHub Pages wala link hona chahiye
+        const redirectUri = "https://your-github-username.github.io/browhost/deploy.html"; 
+        
+        const scope = "repo user"; 
 
-            const authUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}`;
-            
-            window.location.href = authUrl;
-        }
-    </script>
+        const authUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}`;
+        
+        window.location.href = authUrl;
+    }
+</script>
 
 </body>
 </html>
