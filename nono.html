@@ -3,38 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BrowHost Admin | Secure Access</title>
+    <title>BrowHost Admin | Command Center</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background: #050505; color: white; font-family: 'Inter', sans-serif; }
-        .admin-card { background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 20px; padding: 20px; transition: 0.3s; }
-        .admin-card:hover { border-color: #00d2ff; background: #0f0f0f; }
-        .plan-select { background: #000; border: 1px solid #333; color: #00d2ff; font-weight: bold; padding: 6px; border-radius: 8px; outline: none; font-size: 12px; }
-        .neon-glow { text-shadow: 0 0 10px rgba(0, 210, 255, 0.5); }
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap');
+        body { background: #020202; color: #fff; font-family: 'Space Grotesk', sans-serif; }
+        .glass { background: rgba(10, 10, 10, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .neon-text { color: #00d2ff; text-shadow: 0 0 15px rgba(0, 210, 255, 0.6); }
+        .neon-border-blue { border: 1px solid rgba(0, 210, 255, 0.3); box-shadow: 0 0 20px rgba(0, 210, 255, 0.1); }
+        .stat-card { transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .stat-card:hover { transform: translateY(-5px); border-color: #00d2ff; }
+        .user-card { transition: 0.3s ease; }
+        .user-card:hover { background: rgba(255, 255, 255, 0.03); border-color: rgba(0, 210, 255, 0.5); }
+        select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2300d2ff'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.5rem center; background-size: 1em; }
     </style>
 </head>
-<body class="p-4 md:p-12">
+<body class="p-4 md:p-10 min-h-screen">
 
-    <div id="auth-check" class="fixed inset-0 bg-black flex items-center justify-center z-50">
-        <div class="text-center">
-            <div class="w-16 h-16 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p class="text-cyan-400 font-mono animate-pulse">VERIFYING ADMIN ACCESS...</p>
+    <div id="auth-check" class="fixed inset-0 bg-black flex flex-col items-center justify-center z-[100]">
+        <div class="relative w-24 h-24 mb-6">
+            <div class="absolute inset-0 border-4 border-cyan-500/20 rounded-full"></div>
+            <div class="absolute inset-0 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
         </div>
+        <p class="text-cyan-400 font-mono tracking-[0.3em] text-sm animate-pulse uppercase">Syncing with Mainframe...</p>
     </div>
 
-    <div class="max-w-5xl mx-auto">
-        <header class="flex justify-between items-center mb-12 border-b border-gray-900 pb-6">
+    <div class="max-w-7xl mx-auto">
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
             <div>
-                <h1 class="text-4xl font-black italic neon-glow">BROW<span class="text-cyan-400">HOST</span> ADMIN</h1>
-                <p class="text-gray-500 text-xs mt-1 uppercase tracking-widest font-bold">Plan Controller & User Manager</p>
+                <h1 class="text-5xl font-black italic tracking-tighter uppercase neon-text">Brow<span class="text-white">Host</span> Control</h1>
+                <p class="text-gray-500 text-xs mt-2 font-mono tracking-widest uppercase">System Administrator: <span id="admin-name" class="text-cyan-300">...</span></p>
             </div>
-            <div class="text-right">
-                <p id="admin-name" class="text-sm font-bold text-white"></p>
-                <button onclick="logout()" class="text-[10px] text-red-500 uppercase font-bold hover:underline">Secure Logout</button>
+            <div class="flex gap-4">
+                <div class="bg-gray-900/50 p-1 rounded-xl border border-gray-800">
+                    <button onclick="logout()" class="px-6 py-2 rounded-lg bg-red-600/10 text-red-500 text-xs font-bold hover:bg-red-600 hover:text-white transition-all">TERMINATE SESSION</button>
+                </div>
             </div>
         </header>
-        
+
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+            <div class="glass p-6 rounded-3xl neon-border-blue stat-card">
+                <p class="text-[10px] text-gray-500 uppercase font-black mb-1">Total Users</p>
+                <h2 id="stat-total" class="text-4xl font-black italic">0</h2>
+            </div>
+            <div class="glass p-6 rounded-3xl border-yellow-500/20 stat-card">
+                <p class="text-[10px] text-yellow-500 uppercase font-black mb-1">God Mode</p>
+                <h2 id="stat-god" class="text-4xl font-black italic text-yellow-500">0</h2>
+            </div>
+            <div class="glass p-6 rounded-3xl border-purple-500/20 stat-card">
+                <p class="text-[10px] text-purple-500 uppercase font-black mb-1">Premium</p>
+                <h2 id="stat-premium" class="text-4xl font-black italic text-purple-500">0</h2>
+            </div>
+            <div class="glass p-6 rounded-3xl border-green-500/20 stat-card">
+                <p class="text-[10px] text-green-500 uppercase font-black mb-1">Pro Users</p>
+                <h2 id="stat-pro" class="text-4xl font-black italic text-green-500">0</h2>
+            </div>
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-4 mb-8">
+            <div class="flex-grow relative">
+                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-600"></i>
+                <input type="text" id="search-input" oninput="filterUsers()" class="w-full bg-gray-900/40 border border-gray-800 rounded-2xl py-4 pl-12 pr-4 text-sm focus:border-cyan-500 outline-none transition-all" placeholder="Search by name or email hash...">
+            </div>
+            <select id="filter-plan" onchange="filterUsers()" class="bg-gray-900/40 border border-gray-800 rounded-2xl py-4 px-8 text-sm outline-none cursor-pointer">
+                <option value="all">ALL PLANS</option>
+                <option value="free">FREE ONLY</option>
+                <option value="pro">PREMIUM ONLY</option>
+                <option value="premium">PRO ONLY</option>
+            </select>
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="user-list">
             </div>
     </div>
@@ -53,57 +92,80 @@
             appId: "1:522138528836:web:e6f0a4e4eac287b4c0e011"
         };
 
-        // GHOST BHAI: Yahan apni Admin Email dalo
         const ADMIN_EMAIL = "elitegamer859650@gmail.com"; 
-
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Security Check: Sirf Admin ko enter hone dena
+        let allUsers = [];
+
         onAuthStateChanged(auth, (user) => {
             if (user && user.email === ADMIN_EMAIL) {
                 document.getElementById('auth-check').classList.add('hidden');
                 document.getElementById('admin-name').innerText = user.displayName;
                 loadRealtimeUsers();
             } else {
-                window.location.href = 'index.html'; // Non-admin ko login par bhej do
+                window.location.href = 'index.html'; 
             }
         });
 
         function loadRealtimeUsers() {
-            // onSnapshot use kiya hai taake real-time update ho
             onSnapshot(collection(db, "users"), (snapshot) => {
-                const container = document.getElementById('user-list');
-                container.innerHTML = '';
-
-                snapshot.forEach((userDoc) => {
-                    const data = userDoc.data();
-                    const card = document.createElement('div');
-                    card.className = 'admin-card space-y-4';
-                    card.innerHTML = `
-                        <div class="flex items-center gap-3">
-                            <img src="${data.pic || 'https://via.placeholder.com/40'}" class="w-10 h-10 rounded-full border border-gray-800">
-                            <div>
-                                <h3 class="font-bold text-sm truncate w-32">${data.name || 'Anonymous'}</h3>
-                                <p class="text-[10px] text-gray-500 truncate w-32">${data.email}</p>
-                            </div>
-                        </div>
-                        <div class="pt-4 border-t border-gray-900 flex justify-between items-center">
-                            <span class="text-[10px] font-bold text-gray-400 uppercase">Subscription:</span>
-                            <select onchange="window.updatePlan('${userDoc.id}', this.value)" class="plan-select">
-                                <option value="free" ${data.plan === 'free' ? 'selected' : ''}>FREE</option>
-                                <option value="pro" ${data.plan === 'pro' ? 'selected' : ''}>PRO</option>
-                                <option value="premium" ${data.plan === 'premium' ? 'selected' : ''}>PREMIUM</option>
-                                <option value="god" ${data.plan === 'god' ? 'selected' : ''}>GOD MODE</option>
-                            </select>
-                        </div>
-                        <div id="status-${userDoc.id}" class="text-[9px] text-center text-green-500 font-bold opacity-0 uppercase tracking-tighter transition-all">Updated Successfully!</div>
-                    `;
-                    container.appendChild(card);
-                });
+                allUsers = [];
+                snapshot.forEach(d => allUsers.push({id: d.id, ...d.data()}));
+                updateStats();
+                filterUsers();
             });
         }
+
+        function updateStats() {
+            document.getElementById('stat-total').innerText = allUsers.length;
+            document.getElementById('stat-god').innerText = allUsers.filter(u => u.plan === 'god').length;
+            document.getElementById('stat-premium').innerText = allUsers.filter(u => u.plan === 'premium').length;
+            document.getElementById('stat-pro').innerText = allUsers.filter(u => u.plan === 'pro').length;
+        }
+
+        window.filterUsers = () => {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const planFilter = document.getElementById('filter-plan').value;
+            const container = document.getElementById('user-list');
+            
+            const filtered = allUsers.filter(u => {
+                const matchesSearch = (u.name?.toLowerCase().includes(searchTerm) || u.email?.toLowerCase().includes(searchTerm));
+                const matchesPlan = (planFilter === 'all' || u.plan === planFilter);
+                return matchesSearch && matchesPlan;
+            });
+
+            container.innerHTML = filtered.map(data => `
+                <div class="glass p-6 rounded-[2.5rem] border border-gray-800 user-card flex flex-col justify-between">
+                    <div class="flex items-start justify-between mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="relative">
+                                <img src="${data.pic || 'https://via.placeholder.com/40'}" class="w-14 h-14 rounded-2xl object-cover border-2 border-gray-800">
+                                <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-black rounded-full"></div>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg leading-tight">${data.name || 'User'}</h3>
+                                <p class="text-gray-500 text-[10px] uppercase font-mono tracking-tighter">${data.email}</p>
+                            </div>
+                        </div>
+                        <button onclick="copyUID('${data.id}')" class="text-gray-700 hover:text-cyan-400 transition-colors"><i class="fas fa-fingerprint text-xl"></i></button>
+                    </div>
+                    
+                    <div class="bg-black/40 rounded-2xl p-4 flex items-center justify-between border border-gray-800/50">
+                        <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Access Tier</span>
+                        <select onchange="window.updatePlan('${data.id}', this.value)" class="plan-select py-1 pl-4 pr-8 rounded-lg outline-none cursor-pointer">
+                            <option value="free" ${data.plan === 'free' ? 'selected' : ''}>FREE</option>
+                            <option value="pro" ${data.plan === 'pro' ? 'selected' : ''}>PRO</option>
+                            <option value="premium" ${data.plan === 'premium' ? 'selected' : ''}>PREMIUM</option>
+                            <option value="god" ${data.plan === 'god' ? 'selected' : ''}>GOD MODE</option>
+                        </select>
+                    </div>
+
+                    <div id="status-${data.id}" class="mt-4 text-[9px] text-center text-cyan-400 font-bold opacity-0 transition-all uppercase tracking-widest">Protocol Updated</div>
+                </div>
+            `).join('');
+        };
 
         window.updatePlan = async (uid, newPlan) => {
             const userRef = doc(db, "users", uid);
@@ -112,11 +174,13 @@
                 const status = document.getElementById(`status-${uid}`);
                 status.style.opacity = '1';
                 setTimeout(() => status.style.opacity = '0', 2000);
-            } catch (e) {
-                console.error(e);
-                alert("Permission Denied! Check Firestore Rules.");
-            }
+            } catch (e) { alert("Security Breach: Failed to update database."); }
         };
+
+        window.copyUID = (uid) => {
+            navigator.clipboard.writeText(uid);
+            alert("UID Copied: " + uid);
+        }
 
         window.logout = () => signOut(auth).then(() => window.location.href = 'index.html');
     </script>
