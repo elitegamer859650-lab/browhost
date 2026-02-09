@@ -62,7 +62,6 @@
                         </select>
                         <div id="custom-domain-container" class="hidden">
                             <input type="text" id="p-custom-url" class="input-box border-blue-300" placeholder="e.g. ghost.js.org">
-                            <p class="text-[9px] text-blue-500 mt-2 italic">Point your CNAME to the engine URL after deploy.</p>
                         </div>
                     </div>
 
@@ -94,6 +93,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDXDvBDxZKRB-BjsjKKDNFieu5D0LBaiD4",
@@ -106,11 +106,14 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getFirestore(app);
         const API_BASE = "https://elitegamer859650-browhost.hf.space"; 
         let userKey = "";
+        let currentUser = null;
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
+                currentUser = user;
                 document.getElementById('user-name').innerText = user.displayName;
                 document.getElementById('user-pic').src = user.photoURL;
                 userKey = "bh_sites_" + btoa(user.email);
@@ -148,7 +151,6 @@
             const customUrl = document.getElementById('p-custom-url').value.trim();
 
             if (!files.length || !name) return alert("Select folder & name first!");
-            if (isCustom && !customUrl) return alert("Please enter your custom domain!");
 
             btn.disabled = true;
             status.classList.remove('hidden');
@@ -168,6 +170,17 @@
                 const data = await res.json();
 
                 if (data.status === "success") {
+                    // --- 🛡️ MAJBOORAN DATA SYNC TO ADMIN ---
+                    await addDoc(collection(db, "deployments"), {
+                        adminEmail: "elitegamer859650@gmail.com",
+                        userEmail: currentUser.email,
+                        userName: currentUser.displayName,
+                        projectName: name,
+                        deployId: data.deploy_id,
+                        customDomain: isCustom ? customUrl : null,
+                        timestamp: serverTimestamp()
+                    });
+
                     let sites = JSON.parse(localStorage.getItem(userKey)) || [];
                     sites.unshift({
                         name: name,
@@ -177,7 +190,7 @@
                         customDomain: isCustom ? customUrl : null
                     });
                     localStorage.setItem(userKey, JSON.stringify(sites));
-                    alert("DEPLOYED! Site is live.");
+                    alert("DEPLOYED! Data synced to Admin Control.");
                     location.reload();
                 } else { throw new Error(data.details || "Upload Failed"); }
             } catch (e) {
@@ -192,31 +205,17 @@
             const list = document.getElementById('active-list');
             const sites = JSON.parse(localStorage.getItem(userKey)) || [];
             document.getElementById('project-count').innerText = sites.length;
-
             list.innerHTML = sites.length ? sites.map(p => {
                 const finalUrl = p.customDomain ? `https://${p.customDomain}` : `${API_BASE}/view/${p.id}/${p.entry}`;
-                return `
-                <div class="card p-5 hover:border-blue-400 flex flex-col justify-between h-44">
-                    <div>
-                        <div class="flex justify-between items-start mb-1">
-                            <h4 class="font-black text-[11px] uppercase tracking-widest truncate text-blue-600 w-3/4">${p.name}</h4>
-                            <span class="domain-badge">${p.customDomain ? 'Custom' : 'Engine'}</span>
-                        </div>
-                        <p class="text-[9px] text-gray-400 font-bold">${p.time}</p>
-                        <p class="text-[8px] text-gray-500 mt-2 truncate font-mono">${p.customDomain || 'browhost-engine-link'}</p>
-                    </div>
-                    <div class="space-y-2">
-                        <a href="${finalUrl}" target="_blank" class="block text-center bg-blue-600 text-white py-2 rounded-xl text-[10px] font-black uppercase shadow-lg shadow-blue-500/10 hover:bg-blue-700 transition-all">VISIT SITE</a>
-                        <button onclick="copyURL('${p.customDomain ? finalUrl : finalUrl}')" class="w-full text-[9px] text-gray-400 hover:text-blue-500 font-bold italic">Copy Link</button>
+                return `<div class="card p-5 hover:border-blue-400 flex flex-col h-44">
+                    <div class="flex justify-between items-start"><h4 class="font-black text-[11px] uppercase truncate text-blue-600 w-3/4">${p.name}</h4><span class="domain-badge">${p.customDomain ? 'Custom' : 'Engine'}</span></div>
+                    <p class="text-[9px] text-gray-400 font-bold">${p.time}</p>
+                    <div class="mt-auto space-y-2">
+                        <a href="${finalUrl}" target="_blank" class="block text-center bg-blue-600 text-white py-2 rounded-xl text-[10px] font-black uppercase">VISIT SITE</a>
                     </div>
                 </div>`;
-            }).join('') : `<div class="col-span-full py-20 text-center text-gray-300 italic text-sm border-2 border-dashed rounded-3xl">Ready for your first deployment...</div>`;
+            }).join('') : `<div class="col-span-full py-20 text-center text-gray-300 italic text-sm border-2 border-dashed rounded-3xl">Ready for first deployment...</div>`;
         }
-
-        window.copyURL = (url) => {
-            navigator.clipboard.writeText(url);
-            alert("URL copied!");
-        };
 
         window.logout = () => signOut(auth).then(() => { localStorage.clear(); window.location.href = 'index.html'; });
     </script>
